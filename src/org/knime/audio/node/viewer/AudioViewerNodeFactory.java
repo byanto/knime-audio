@@ -1,24 +1,24 @@
-package org.knime.audio.node.reader;
+package org.knime.audio.node.viewer;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "AudioReader" Node.
- *
+ * <code>NodeFactory</code> for the "AudioViewer" Node.
+ * 
  *
  * @author Budi Yanto, KNIME.com
  */
-public class AudioReaderNodeFactory
-        extends NodeFactory<AudioReaderNodeModel> {
+public class AudioViewerNodeFactory 
+        extends NodeFactory<AudioViewerNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AudioReaderNodeModel createNodeModel() {
-        return new AudioReaderNodeModel();
+    public AudioViewerNodeModel createNodeModel() {
+        return new AudioViewerNodeModel();
     }
 
     /**
@@ -26,16 +26,16 @@ public class AudioReaderNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 0;
+        return 1;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NodeView<AudioReaderNodeModel> createNodeView(final int viewIndex,
-            final AudioReaderNodeModel nodeModel) {
-        return null;
+    public NodeView<AudioViewerNodeModel> createNodeView(final int viewIndex,
+            final AudioViewerNodeModel nodeModel) {
+        return new AudioViewerNodeView(nodeModel);
     }
 
     /**
@@ -51,7 +51,7 @@ public class AudioReaderNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new AudioReaderNodeDialog();
+        return new AudioViewerNodeDialog();
     }
 
 }

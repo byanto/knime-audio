@@ -1,24 +1,24 @@
-package org.knime.audio.node.reader;
+package org.knime.audio.node.recognizer.bing;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "AudioReader" Node.
+ * <code>NodeFactory</code> for the "BingSpeechRecognizer" Node.
  *
  *
  * @author Budi Yanto, KNIME.com
  */
-public class AudioReaderNodeFactory
-        extends NodeFactory<AudioReaderNodeModel> {
+public class BingSpeechSRNodeFactory
+        extends NodeFactory<BingSpeechSRNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AudioReaderNodeModel createNodeModel() {
-        return new AudioReaderNodeModel();
+    public BingSpeechSRNodeModel createNodeModel() {
+        return new BingSpeechSRNodeModel();
     }
 
     /**
@@ -33,8 +33,8 @@ public class AudioReaderNodeFactory
      * {@inheritDoc}
      */
     @Override
-    public NodeView<AudioReaderNodeModel> createNodeView(final int viewIndex,
-            final AudioReaderNodeModel nodeModel) {
+    public NodeView<BingSpeechSRNodeModel> createNodeView(final int viewIndex,
+            final BingSpeechSRNodeModel nodeModel) {
         return null;
     }
 
@@ -51,7 +51,7 @@ public class AudioReaderNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new AudioReaderNodeDialog();
+        return new BingSpeechSRNodeDialog();
     }
 
 }

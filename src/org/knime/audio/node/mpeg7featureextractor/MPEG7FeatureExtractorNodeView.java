@@ -1,21 +1,21 @@
-package org.knime.audio.node.reader;
+package org.knime.audio.node.mpeg7featureextractor;
 
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeView</code> for the "AudioReader" Node.
+ * <code>NodeView</code> for the "MPEG7FeatureExtractor" Node.
  * 
  *
  * @author Budi Yanto, KNIME.com
  */
-public class AudioReaderNodeView extends NodeView<AudioReaderNodeModel> {
+public class MPEG7FeatureExtractorNodeView extends NodeView<MPEG7FeatureExtractorNodeModel> {
 
     /**
      * Creates a new view.
      * 
-     * @param nodeModel The model (class: {@link AudioReaderNodeModel})
+     * @param nodeModel The model (class: {@link MPEG7FeatureExtractorNodeModel})
      */
-    protected AudioReaderNodeView(final AudioReaderNodeModel nodeModel) {
+    protected MPEG7FeatureExtractorNodeView(final MPEG7FeatureExtractorNodeModel nodeModel) {
         super(nodeModel);
         // TODO: generated method stub
     }

@@ -1,25 +1,76 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse version="3.0"?>
 <plugin>
-
-   <!-- This is an example for providing an own category 
-      <extension
-         point="org.knime.workbench.repository.categories">
+	<extension
+		  point="org.knime.workbench.repository.categories">
+		<category
+            description="Audio Nodes"
+            icon="resources/missing.gif"
+            level-id="audio"
+            locked="true"
+            name="Audio"
+            path="/">
+      </category>
       <category
-            description="Category containing my nodes"
-            icon="icons/default.png"
-            level-id="myNodes"
-            name="My nodes"
-            path="/"/>
+            description="Audio IO Nodes"
+            icon="resources/missing.gif"
+            level-id="io"
+            locked="true"
+            name="IO"
+            path="/audio">
+      </category>
+      <category
+            description="Audio Preprocessing Nodes"
+            icon="resources/missing.gif"
+            level-id="preprocessing"
+            locked="true"
+            name="Preprocessing"
+            path="/audio">
+      </category>
+      <category
+            description="Audio misc nodes"
+            icon="resources/missing.gif"
+            level-id="misc"
+            locked="true"
+            name="Misc"
+            path="/audio">
+      </category>
+      <category
+            description="Speech Recognizer Nodes"
+            icon="resources/missing.gif"
+            level-id="recognizer"
+            locked="true"
+            name="Recognizer"
+            path="/audio">
+      </category>
    </extension>
-   -->
    
-   <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/"
-            factory-class="org.knime.audio.node.reader.AudioReaderNodeFactory"
-            id="org.knime.audio.node.reader.AudioReaderNodeFactory"/>
-   </extension>
-   
+	<extension 
+		  point="org.knime.workbench.repository.nodes">
+		<node 
+			category-path="/audio/io" 
+			factory-class="org.knime.audio.node.reader.AudioReaderNodeFactory" />
+   		<node 
+   			category-path="/audio/preprocessing" 
+   			factory-class="org.knime.audio.node.dataextractor.DataExtractorNodeFactory" />
+		<node 
+			category-path="/audio/preprocessing" 
+			factory-class="org.knime.audio.node.featureextractor.FeatureExtractorNodeFactory" />
+		<node 
+			category-path="/audio/preprocessing" 
+			factory-class="org.knime.audio.node.mpeg7featureextractor.MPEG7FeatureExtractorNodeFactory" />
+		<node 
+			category-path="/audio/recognizer" 
+			factory-class="org.knime.audio.node.recognizer.bing.BingSpeechSRNodeFactory" />
+		<node 
+			category-path="/audio/recognizer" 
+			factory-class="org.knime.audio.node.recognizer.cmusphinx.CMUSphinxSRNodeFactory" />
+		<node 
+			category-path="/audio/recognizer" 
+			factory-class="org.knime.audio.node.recognizer.ibmwatson.IBMWatsonSRNodeFactory" />
+		<node 
+			category-path="/audio/misc" 
+			factory-class="org.knime.audio.node.viewer.AudioViewerNodeFactory" />
+	</extension>
+
 </plugin>
