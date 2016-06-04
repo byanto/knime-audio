@@ -1,24 +1,24 @@
-package org.knime.audio.node.mpeg7featureextractor;
+package org.knime.audio.node.recognizer.google;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "MPEG7FeatureExtractor" Node.
+ * <code>NodeFactory</code> for the "GoogleSpeech" Node.
  * 
  *
  * @author Budi Yanto, KNIME.com
  */
-public class MPEG7FeatureExtractorNodeFactory 
-        extends NodeFactory<MPEG7FeatureExtractorNodeModel> {
+public class GoogleSpeechNodeFactory 
+        extends NodeFactory<GoogleSpeechNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public MPEG7FeatureExtractorNodeModel createNodeModel() {
-        return new MPEG7FeatureExtractorNodeModel();
+    public GoogleSpeechNodeModel createNodeModel() {
+        return new GoogleSpeechNodeModel();
     }
 
     /**
@@ -33,8 +33,8 @@ public class MPEG7FeatureExtractorNodeFactory
      * {@inheritDoc}
      */
     @Override
-    public NodeView<MPEG7FeatureExtractorNodeModel> createNodeView(final int viewIndex,
-            final MPEG7FeatureExtractorNodeModel nodeModel) {
+    public NodeView<GoogleSpeechNodeModel> createNodeView(final int viewIndex,
+            final GoogleSpeechNodeModel nodeModel) {
         return null;
     }
 
@@ -51,7 +51,7 @@ public class MPEG7FeatureExtractorNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new MPEG7FeatureExtractorNodeDialog();
+        return new GoogleSpeechNodeDialog();
     }
 
 }

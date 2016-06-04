@@ -1,15 +1,38 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: AudioReader-Node extension for KNIME Workbench
-Bundle-SymbolicName: org.knime.audio.node.reader; singleton:=true
-Bundle-Version: 1.0.0
-Bundle-ClassPath: audioreader.jar
-Bundle-Activator: org.knime.audio.node.reader.AudioReaderNodePlugin
-Bundle-Vendor: Budi Yanto, KNIME.com
-Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core,
- org.knime.workbench.repository,
- org.knime.base
+Bundle-Name: KNIME Audio Processing Nodes
+Bundle-SymbolicName: org.knime.audio; singleton:=true
+Bundle-Version: 3.2.0.qualifier
+Bundle-ClassPath: knime-audio.jar,
+ lib/jAudio.jar,
+ lib/java-sdk-2.9.0-jar-with-dependencies-ibmwatson.jar,
+ lib/jfreechart-1.0.19.jar,
+ lib/jcommon-1.0.23.jar,
+ lib/MPEG7AudioEnc-0.4-rc3.jar,
+ lib/sphinx4-core-5prealpha-20160218.203526-7.jar
+Bundle-Vendor: KNIME GmbH, Berlin, Germany
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.11.0,4.0.0)",
+ org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
+ org.knime.base;bundle-version="[3.0.0,4.0.0)",
+ org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
+ org.knime.ext.jfreechart;bundle-version="3.2.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.knime.audio.node.reader
+Export-Package: org.knime.audio.data,
+ org.knime.audio.data.cell,
+ org.knime.audio.data.feature,
+ org.knime.audio.data.feature.mpeg7,
+ org.knime.audio.data.io,
+ org.knime.audio.data.recognizer,
+ org.knime.audio.dialogcomponent,
+ org.knime.audio.node.dataextractor,
+ org.knime.audio.node.featureextractor,
+ org.knime.audio.node.mpeg7featureextractor,
+ org.knime.audio.node.reader,
+ org.knime.audio.node.recognizer,
+ org.knime.audio.node.recognizer.bing,
+ org.knime.audio.node.recognizer.cmusphinx,
+ org.knime.audio.node.recognizer.ibmwatson,
+ org.knime.audio.node.viewer,
+ org.knime.audio.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

@@ -49,7 +49,7 @@
 package org.knime.audio.node.dataextractor;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.audio.data.Audio;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;

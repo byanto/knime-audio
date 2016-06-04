@@ -104,11 +104,11 @@ public class RecognizerCellFactory extends AbstractCellFactory{
              * to replace the old one */
             final Audio newAudio = AudioBuilder.createAudio(
                 ((AudioCell) audioCell).getAudio());
-//            final RecognitionResult result = m_recognizer.recognize(newAudio);
+            final RecognitionResult result = m_recognizer.recognize(newAudio);
 
-            final RecognitionResult result = new RecognitionResult(
-                m_recognizer.getName(),
-                "Dummy Transcript " + row.getKey());
+//            final RecognitionResult result = new RecognitionResult(
+//                m_recognizer.getName(),
+//                "Dummy Transcript " + row.getKey());
             newAudio.addRecognitionResult(result);
             final AudioCellFactory cellFactory = new AudioCellFactory();
             cells[0] = cellFactory.createCell(newAudio);

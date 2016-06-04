@@ -3,7 +3,7 @@ package org.knime.audio.node.recognizer.ibmwatson;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.audio.node.recognizer.RecognizerNodeModel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.ColumnRearranger;

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <classpathentry kind="src" path="src"/>
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-    <classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-    <classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="lib/jAudio.jar"/>
+	<classpathentry kind="lib" path="lib/MPEG7AudioEnc-0.4-rc3.jar"/>
+	<classpathentry kind="lib" path="lib/sphinx4-core-5prealpha-20160218.203526-7.jar"/>
+	<classpathentry kind="lib" path="lib/java-sdk-2.9.0-jar-with-dependencies-ibmwatson.jar" sourcepath="/home/budiyanto/Documents/Masterarbeit_NotSync/Libraries/IBM-Watson/java-sdk-2.9.0-sources-ibmwatson.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

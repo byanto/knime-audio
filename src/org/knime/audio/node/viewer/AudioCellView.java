@@ -52,6 +52,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Set;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -272,12 +273,12 @@ class AudioCellView extends JPanel{
 //        .append("Type: ").append(result.getRecognizerInfo(RecognizerInfo.KEY_NAME))
         .append("Type: ").append(result.getRecognizerName())
         .append("<h3>Recognition Result</h3>")
-        .append("Transcript: ").append(result.getTranscript()).append("<br/>")
-        .append("Confidence: ");
+        .append("<h4>Transcript:</h4> ").append(result.getTranscript())
+        .append("<h4>Confidence:</h4> ");
         if(result.getConfidence() == RecognitionResult.UNKNOWN_CONFIDENCE_SCORE){
             builder.append("Unknown");
         }else{
-            builder.append(result.getConfidence());
+            builder.append(new DecimalFormat("#.###").format(result.getConfidence()));
         }
         editor.setText(builder.toString());
     }

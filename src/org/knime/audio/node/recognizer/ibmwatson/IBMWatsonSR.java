@@ -48,21 +48,27 @@
  */
 package org.knime.audio.node.recognizer.ibmwatson;
 
-import org.apache.commons.lang.StringUtils;
-import org.node.audio.data.Audio;
+import java.text.DecimalFormat;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.knime.audio.data.Audio;
 import org.knime.audio.data.recognizer.RecognitionResult;
 import org.knime.audio.data.recognizer.Recognizer;
 
+import com.ibm.watson.developer_cloud.speech_to_text.v1.RecognizeOptions;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechAlternative;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.Transcript;
 
 /**
  *
  * @author Budi Yanto, KNIME.com
  */
 public class IBMWatsonSR implements Recognizer{
-
+	
+	private static final String END_POINT = "https://stream.watsonplatform.net/speech-to-text/api";
     private String m_userName = "";
     private String m_password = "";
 
@@ -104,13 +110,26 @@ public class IBMWatsonSR implements Recognizer{
         }
         final SpeechToText service = new SpeechToText();
         service.setUsernameAndPassword(m_userName, m_password);
-        final SpeechResults results = service.recognize(audio.getFile());
-
-        final SpeechAlternative alternative = results.getResults().get(0)
-                .getAlternatives().get(0);
-        final String transcript = alternative.getTranscript();
-        final double confidence = alternative.getConfidence();
-        return new RecognitionResult(getName(), transcript, confidence);
+        service.setEndPoint(END_POINT);
+        final RecognizeOptions options = new RecognizeOptions().continuous(true);
+        final SpeechResults results = service.recognize(audio.getFile(), options);
+        final StringBuilder builder = new StringBuilder();
+        final int totalResults = results.getResults().size();
+        double confidence = 0.0;
+        for(final Transcript transcript : results.getResults()) {
+        	final List<SpeechAlternative> alternatives = transcript.getAlternatives();
+        	final SpeechAlternative alt = alternatives.get(0);
+        	builder.append(alt.getTranscript());
+        	confidence += alt.getConfidence();
+        }
+        
+        confidence /= totalResults;
+        
+//        final SpeechAlternative alternative = results.getResults().get(0)
+//                .getAlternatives().get(0);
+//        final String transcript = alternative.getTranscript();
+//        final double confidence = alternative.getConfidence();        
+        return new RecognitionResult(getName(), builder.toString(), confidence);
     }
 
     /**

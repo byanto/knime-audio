@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.audio.node.recognizer.RecognizerNodeModel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.ColumnRearranger;
@@ -24,7 +24,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * @author Budi Yanto, KNIME.com
  */
 public class CMUSphinxSRNodeModel extends RecognizerNodeModel {
-
+	
     private final SettingsModelString m_acousticModelPath = createAcousticModelPathSettingsModel();
 
     private final SettingsModelString m_dictionaryPath = createDictionaryPathSettingsModel();
