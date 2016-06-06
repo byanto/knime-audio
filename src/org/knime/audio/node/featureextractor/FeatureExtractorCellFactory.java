@@ -77,214 +77,214 @@ import org.knime.core.node.NodeLogger;
  *
  * @author Budi Yanto, KNIME.com
  */
-public class FeatureExtractorCellFactory extends AbstractCellFactory{
+class FeatureExtractorCellFactory extends AbstractCellFactory {
 
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(
-        FeatureExtractorCellFactory.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(
+			FeatureExtractorCellFactory.class);
 
-    private final int m_audioColIdx;
-    private final FeatureExtractor[] m_extractors;
-    private final int m_windowSizeInSamples;
-    private final int m_windowsOverlapInPercent;
-    private final FeatureExtractor.Aggregator m_aggregator;
-    private final Set<FeatureExtractor> m_sortedExtractors;
+	private final int m_audioColIdx;
+	private final FeatureExtractor[] m_extractors;
+	private final int m_windowSizeInSamples;
+	private final int m_windowsOverlapInPercent;
+	private final FeatureExtractor.Aggregator m_aggregator;
+	private final Set<FeatureExtractor> m_sortedExtractors;
 
-    /**
-     *
-     * @param audioColIdx
-     * @param colSpecs
-     * @param extractors
-     * @param windowSizeInSamples
-     * @param windowsOverlapInPercent
-     * @param aggregatorMethod
-     */
-    public FeatureExtractorCellFactory(final int audioColIdx,
-            final DataColumnSpec[] colSpecs, final FeatureExtractor[] extractors,
-            final int windowSizeInSamples, final int windowsOverlapInPercent,
-            final String aggregatorMethod){
-        super(colSpecs);
-        if (audioColIdx < 0) {
-            throw new IllegalArgumentException("Invalid audio column");
-        }
+	/**
+	 *
+	 * @param audioColIdx
+	 * @param colSpecs
+	 * @param extractors
+	 * @param windowSizeInSamples
+	 * @param windowsOverlapInPercent
+	 * @param aggregatorMethod
+	 */
+	FeatureExtractorCellFactory(final int audioColIdx,
+			final DataColumnSpec[] colSpecs, final FeatureExtractor[] extractors,
+			final int windowSizeInSamples, final int windowsOverlapInPercent,
+			final String aggregatorMethod){
+		super(colSpecs);
+		if (audioColIdx < 0) {
+			throw new IllegalArgumentException("Invalid audio column");
+		}
 
-        if(StringUtils.isBlank(aggregatorMethod)){
-            throw new IllegalArgumentException("Aggregator method cannot be empty");
-        }
-        m_audioColIdx = audioColIdx;
-        m_extractors = extractors;
-        m_windowSizeInSamples = windowSizeInSamples;
-        m_windowsOverlapInPercent = windowsOverlapInPercent;
-        m_aggregator = FeatureExtractor.getAggregator(aggregatorMethod);
-        m_sortedExtractors = sortExtractors(extractors);
-    }
+		if(StringUtils.isBlank(aggregatorMethod)){
+			throw new IllegalArgumentException("Aggregator method cannot be empty");
+		}
+		m_audioColIdx = audioColIdx;
+		m_extractors = extractors;
+		m_windowSizeInSamples = windowSizeInSamples;
+		m_windowsOverlapInPercent = windowsOverlapInPercent;
+		m_aggregator = FeatureExtractor.getAggregator(aggregatorMethod);
+		m_sortedExtractors = sortExtractors(extractors);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DataCell[] getCells(final DataRow row) {
-        final DataCell[] cells = new DataCell[getColumnSpecs().length];
-        final DataCell cell = row.getCell(m_audioColIdx);
-        if(!cell.getType().isCompatible(AudioValue.class)){
-            throw new IllegalStateException("Invalid column type");
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataCell[] getCells(final DataRow row) {
+		final DataCell[] cells = new DataCell[getColumnSpecs().length];
+		final DataCell cell = row.getCell(m_audioColIdx);
+		if(!cell.getType().isCompatible(AudioValue.class)){
+			throw new IllegalStateException("Invalid column type");
+		}
 
-        final Audio audio = ((AudioCell) cell).getAudio();
+		final Audio audio = ((AudioCell) cell).getAudio();
 
-        try {
-            final AudioSamples audioSamples = AudioUtils.getAudioSamples(audio);
-            final int windowOverlapOffset = (int)((m_windowsOverlapInPercent / 100f)
-                    * m_windowSizeInSamples);
+		try {
+			final AudioSamples audioSamples = AudioUtils.getAudioSamples(audio);
+			final int windowOverlapOffset = (int)((m_windowsOverlapInPercent / 100f)
+					* m_windowSizeInSamples);
 
-            /* Get chunk start indices */
-            LOGGER.debug("Get chunk start indices");
-            final List<Integer> chunkIndices = getChunkStartIndices(audioSamples,
-                m_windowSizeInSamples, windowOverlapOffset);
+			/* Get chunk start indices */
+			LOGGER.debug("Get chunk start indices");
+			final List<Integer> chunkIndices = getChunkStartIndices(audioSamples,
+					m_windowSizeInSamples, windowOverlapOffset);
 
-            /* Sort the feature extractors */
-//            LOGGER.debug("Sort the feature extractors");
-//            final Set<FeatureExtractor> sortedExtractors = sortExtractors(m_extractors);
+			/* Sort the feature extractors */
+			//            LOGGER.debug("Sort the feature extractors");
+			//            final Set<FeatureExtractor> sortedExtractors = sortExtractors(m_extractors);
 
-            /* Extract features per chunk */
-            LOGGER.debug("Extract features per chunk");
-            final Map<FeatureType, List<double[]>> featuresPerChunk =
-                    extractFeaturesPerChunk(m_sortedExtractors, chunkIndices,
-                        audioSamples, m_windowSizeInSamples);
+			/* Extract features per chunk */
+			LOGGER.debug("Extract features per chunk");
+			final Map<FeatureType, List<double[]>> featuresPerChunk =
+					extractFeaturesPerChunk(m_sortedExtractors, chunkIndices,
+							audioSamples, m_windowSizeInSamples);
 
-            /* Aggregate all of the features */
-            LOGGER.debug("Aggregate the features");
-            final Map<FeatureType, double[]> aggregatedFeatures =
-                    aggregateFeatures(featuresPerChunk, m_aggregator);
+			/* Aggregate all of the features */
+			LOGGER.debug("Aggregate the features");
+			final Map<FeatureType, double[]> aggregatedFeatures =
+					aggregateFeatures(featuresPerChunk, m_aggregator);
 
-            /* Put extracted features into DoubleCell */
-            int cellIdx = 0;
-            for(FeatureExtractor extractor : m_extractors){
-                final double[] features = aggregatedFeatures.get(extractor.getType());
+			/* Put extracted features into DoubleCell */
+			int cellIdx = 0;
+			for(final FeatureExtractor extractor : m_extractors){
+				final double[] features = aggregatedFeatures.get(extractor.getType());
 
-                final DataCell[] featureCells = extractor.getType()
-                        .getDataCells(features);
-                final int totalCells = featureCells.length;
-                LOGGER.debug("Put features of '" + extractor.getType().getName()
-                    + "' into cell location " + cellIdx + " - "
-                        + (cellIdx + totalCells - 1));
-                System.arraycopy(featureCells, 0, cells, cellIdx, totalCells);
-                cellIdx += totalCells;
-            }
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-        }
+				final DataCell[] featureCells = extractor.getType()
+						.getDataCells(features);
+				final int totalCells = featureCells.length;
+				LOGGER.debug("Put features of '" + extractor.getType().getName()
+						+ "' into cell location " + cellIdx + " - "
+						+ ((cellIdx + totalCells) - 1));
+				System.arraycopy(featureCells, 0, cells, cellIdx, totalCells);
+				cellIdx += totalCells;
+			}
+		} catch (final Exception ex) {
+			LOGGER.error(ex);
+		}
 
-        return cells;
-    }
+		return cells;
+	}
 
-    private Set<FeatureExtractor> sortExtractors(final FeatureExtractor[] extractors) {
-        LOGGER.debug("Sort the feature extractors");
-        final Set<FeatureExtractor> result = new LinkedHashSet<FeatureExtractor>();
-        final Map<FeatureType, FeatureExtractor> temp = new HashMap<FeatureType, FeatureExtractor>();
+	private Set<FeatureExtractor> sortExtractors(final FeatureExtractor[] extractors) {
+		LOGGER.debug("Sort the feature extractors");
+		final Set<FeatureExtractor> result = new LinkedHashSet<FeatureExtractor>();
+		final Map<FeatureType, FeatureExtractor> temp = new HashMap<FeatureType, FeatureExtractor>();
 
-        final Set<FeatureType> orderedTypes = new LinkedHashSet<FeatureType>();
-        for (FeatureExtractor ext : extractors) {
-            temp.put(ext.getType(), ext);
-            sortFeatureType(ext.getType(), orderedTypes);
-        }
+		final Set<FeatureType> orderedTypes = new LinkedHashSet<FeatureType>();
+		for (final FeatureExtractor ext : extractors) {
+			temp.put(ext.getType(), ext);
+			sortFeatureType(ext.getType(), orderedTypes);
+		}
 
-        for (FeatureType type : orderedTypes) {
-            if (temp.containsKey(type)) {
-                result.add(temp.get(type));
-            } else {
-                result.add(FeatureExtractor.getFeatureExtractor(type));
-            }
-        }
+		for (final FeatureType type : orderedTypes) {
+			if (temp.containsKey(type)) {
+				result.add(temp.get(type));
+			} else {
+				result.add(FeatureExtractor.getFeatureExtractor(type));
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    private static void sortFeatureType(final FeatureType type, final Set<FeatureType> set) {
-        for (final FeatureType ft : type.getDependencies()) {
-            sortFeatureType(ft, set);
-        }
-        set.add(type);
-    }
+	private static void sortFeatureType(final FeatureType type, final Set<FeatureType> set) {
+		for (final FeatureType ft : type.getDependencies()) {
+			sortFeatureType(ft, set);
+		}
+		set.add(type);
+	}
 
-    private List<Integer> getChunkStartIndices(final AudioSamples wholeSamples, final int chunkSize,
-        final int chunkOverlapOffset) {
-        final double[] samples = wholeSamples.getSamplesMixedDownIntoOneChannel();
-        final List<Integer> result = new ArrayList<Integer>();
-        int position = 0;
-        while (position < samples.length) {
-            position -= chunkOverlapOffset;
-            if (position < 0) {
-                position = 0;
-            }
-            result.add(position);
-            position += chunkSize;
-        }
-        return result;
-    }
+	private List<Integer> getChunkStartIndices(final AudioSamples wholeSamples, final int chunkSize,
+			final int chunkOverlapOffset) {
+		final double[] samples = wholeSamples.getSamplesMixedDownIntoOneChannel();
+		final List<Integer> result = new ArrayList<Integer>();
+		int position = 0;
+		while (position < samples.length) {
+			position -= chunkOverlapOffset;
+			if (position < 0) {
+				position = 0;
+			}
+			result.add(position);
+			position += chunkSize;
+		}
+		return result;
+	}
 
-    private Map<FeatureType, List<double[]>> extractFeaturesPerChunk(final Set<FeatureExtractor> sortedExtractors,
-        final List<Integer> chunkIndices, final AudioSamples wholeSamples, final int chunkSize) throws Exception {
+	private Map<FeatureType, List<double[]>> extractFeaturesPerChunk(final Set<FeatureExtractor> sortedExtractors,
+			final List<Integer> chunkIndices, final AudioSamples wholeSamples, final int chunkSize) throws Exception {
 
-        final Map<FeatureType, List<double[]>> result = new HashMap<FeatureType, List<double[]>>();
-        final double[] samples = wholeSamples.getSamplesMixedDownIntoOneChannel();
-        int toRead = chunkSize;
-        for (int i = 0; i < chunkIndices.size(); i++) {
-            if (i == chunkIndices.size() - 1) {
-                /* Last index, only read the rest of the samples */
-                toRead = samples.length - chunkIndices.get(i);
-            }
-            final double[] buf = new double[chunkSize];
-            System.arraycopy(samples, chunkIndices.get(i), buf, 0, toRead);
-            final AudioSamples chunk = new AudioSamples(buf, wholeSamples.getAudioFormat());
-            for (FeatureExtractor extractor : sortedExtractors) {
-                final FeatureType type = extractor.getType();
-                final FeatureType[] dependencies = type.getDependencies();
-                double[][] additionalValues = new double[dependencies.length][];
-                for (int j = 0; j < dependencies.length; j++) {
-                    additionalValues[j] = result.get(dependencies[j]).get(i);
-                }
-                if (!type.hasDependencies()) {
-                    additionalValues = null;
-                }
-                final double[] features = extractor.extractFeature(chunk, additionalValues);
-                List<double[]> list = result.get(type);
-                if (list == null) {
-                    list = new ArrayList<double[]>();
-                    list.add(features);
-                    result.put(type, list);
-                } else {
-                    list.add(features);
-                }
-            }
-        }
+		final Map<FeatureType, List<double[]>> result = new HashMap<FeatureType, List<double[]>>();
+		final double[] samples = wholeSamples.getSamplesMixedDownIntoOneChannel();
+		int toRead = chunkSize;
+		for (int i = 0; i < chunkIndices.size(); i++) {
+			if (i == (chunkIndices.size() - 1)) {
+				/* Last index, only read the rest of the samples */
+				toRead = samples.length - chunkIndices.get(i);
+			}
+			final double[] buf = new double[chunkSize];
+			System.arraycopy(samples, chunkIndices.get(i), buf, 0, toRead);
+			final AudioSamples chunk = new AudioSamples(buf, wholeSamples.getAudioFormat());
+			for (final FeatureExtractor extractor : sortedExtractors) {
+				final FeatureType type = extractor.getType();
+				final FeatureType[] dependencies = type.getDependencies();
+				double[][] additionalValues = new double[dependencies.length][];
+				for (int j = 0; j < dependencies.length; j++) {
+					additionalValues[j] = result.get(dependencies[j]).get(i);
+				}
+				if (!type.hasDependencies()) {
+					additionalValues = null;
+				}
+				final double[] features = extractor.extractFeature(chunk, additionalValues);
+				List<double[]> list = result.get(type);
+				if (list == null) {
+					list = new ArrayList<double[]>();
+					list.add(features);
+					result.put(type, list);
+				} else {
+					list.add(features);
+				}
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    private Map<FeatureType, double[]> aggregateFeatures(final Map<FeatureType, List<double[]>> featuresPerChunk,
-        final FeatureExtractor.Aggregator aggregator) {
-        final Map<FeatureType, double[]> result = new HashMap<FeatureType, double[]>();
+	private Map<FeatureType, double[]> aggregateFeatures(final Map<FeatureType, List<double[]>> featuresPerChunk,
+			final FeatureExtractor.Aggregator aggregator) {
+		final Map<FeatureType, double[]> result = new HashMap<FeatureType, double[]>();
 
-        for (Entry<FeatureType, List<double[]>> entry : featuresPerChunk.entrySet()) {
-            final String text = "Aggregate feature of '" + entry.getKey().getName() + "' with ";
-            double[] aggregation = new double[0];
-            final double[][] values = entry.getValue().toArray(new double[entry.getValue().size()][]);
-            switch (aggregator) {
-                case MEAN:
-                    LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.MEAN.getName() + "'");
-                    aggregation = MathUtils.mean(values);
-                    break;
-                case STD_DEVIATION:
-                    LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.STD_DEVIATION.getName() + "'");
-                    aggregation = MathUtils.standardDeviation(values);
-                    break;
-                default:
-                    break;
-            }
-            result.put(entry.getKey(), aggregation);
-        }
+		for (final Entry<FeatureType, List<double[]>> entry : featuresPerChunk.entrySet()) {
+			final String text = "Aggregate feature of '" + entry.getKey().getName() + "' with ";
+			double[] aggregation = new double[0];
+			final double[][] values = entry.getValue().toArray(new double[entry.getValue().size()][]);
+			switch (aggregator) {
+			case MEAN:
+				LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.MEAN.getName() + "'");
+				aggregation = MathUtils.mean(values);
+				break;
+			case STD_DEVIATION:
+				LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.STD_DEVIATION.getName() + "'");
+				aggregation = MathUtils.standardDeviation(values);
+				break;
+			default:
+				break;
+			}
+			result.put(entry.getKey(), aggregation);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 }

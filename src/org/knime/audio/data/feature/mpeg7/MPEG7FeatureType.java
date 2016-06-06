@@ -48,184 +48,387 @@
  */
 package org.knime.audio.data.feature.mpeg7;
 
+import org.knime.audio.data.feature.FeatureExtractor;
+import org.knime.audio.util.MathUtils;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.collection.ListCell;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.util.UniqueNameGenerator;
+
 /**
  *
  * @author Budi Yanto, KNIME.com
  */
 public enum MPEG7FeatureType {
-    /** Audio Waveform */
-    AUDIO_WAVEFORM(
-        "Audio Waveform",
-        "AudioWaveform",
-        "Description AW",
-        new String[0]),
+	/** Audio Waveform */
+	AUDIO_WAVEFORM("Audio Waveform", "AudioWaveform", "Description AW", false, new CellExtractor() {
 
-    /** Audio Power */
-    AUDIO_POWER(
-        "Audio Power",
-        "AudioPower",
-        "Description AP",
-        new String[]{"logScale"}),
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			final double[] data = getAggregatedValues(aggregator, descriptors[0].getRaw());
+			final DataCell[] cells = new DataCell[2];
+			cells[MPEG7DocumentBuilder.MIN_IDX] = new DoubleCell(data[MPEG7DocumentBuilder.MIN_IDX]);
+			cells[MPEG7DocumentBuilder.MAX_IDX] = new DoubleCell(data[MPEG7DocumentBuilder.MAX_IDX]);
+			return cells;
+		}
 
-    /** Audio Spectrum Envelope */
-    AUDIO_SPECTRUM_ENVELOPE(
-        "Audio Spectrum Envelope",
-        "AudioSpectrumEnvelope",
-        "Description ASE",
-        new String[]{"loEdge", "hiEdge", "resolution", "dbScale", "normalize"}),
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			final UniqueNameGenerator generator = new UniqueNameGenerator(inSpec);
+			return new DataColumnSpec[] { generator.newColumn(AUDIO_WAVEFORM.getName() + " - Min", DoubleCell.TYPE),
+					generator.newColumn(AUDIO_WAVEFORM.getName() + " - Max", DoubleCell.TYPE) };
+		}
 
-    /** Audio Spectrum Centroid */
-    AUDIO_SPECTRUM_CENTROID(
-        "Audio Spectrum Centroid",
-        "AudioSpectrumCentroid",
-        "Description ASC",
-        new String[0]),
+	}),
 
-    /** Audio Spectrum Spread */
-    AUDIO_SPECTRUM_SPREAD(
-        "Audio Spectrum Spread",
-        "AudioSpectrumSpread",
-        "Description ASS",
-        new String[0]),
+	/** Audio Power */
+	AUDIO_POWER("Audio Power", "AudioPower", "Description AP", true, new CellExtractor() {
 
-    /** Audio Spectrum Flatness */
-    AUDIO_SPECTRUM_FLATNESS(
-        "Audio Spectrum Flatness",
-        "AudioSpectrumFlatness",
-        "Description ASF",
-        new String[]{"loEdge", "hiEdge"}),
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-    /** Audio Harmonicity */
-    AUDIO_HARMONICITY(
-        "Audio Harmonicity",
-        "AudioHarmonicity",
-        "Description AH",
-        new String[0]),
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(AUDIO_POWER.getName(), DoubleCell.TYPE) };
+		}
 
-    /** Audio Fundamental Frequency */
-    AUDIO_FUNDAMENTAL_FREQUENCY(
-        "Audio Fundamental Frequency",
-        "AudioFundamentalFrequency",
-        "Description AFF",
-        new String[]{"lolimit", "hilimit"}),
+	}),
 
-    /** Log Attack Time */
-    LOG_ATTACK_TIME(
-        "Log Attack Time",
-        "LogAttackTime",
-        "Description LAT",
-        new String[]{"windowlength", "windowslide", "threshold"}),
+	/** Audio Spectrum Envelope */
+	AUDIO_SPECTRUM_ENVELOPE("Audio Spectrum Envelope", "AudioSpectrumEnvelope", "Description ASE", true, new CellExtractor() {
 
-    /** Temporal Centroid */
-    TEMPORAL_CENTROID(
-        "Temporal Centroid",
-        "TemporalCentroid",
-        "Description TC",
-        new String[]{"windowlength", "windowslide"}),
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-    /** Harmonic Spectral Centroid */
-    HARMONIC_SPECTRAL_CENTROID(
-        "Harmonic Spectral Centroid",
-        "HarmonicSpectralCentroid",
-        "Description HSC",
-        new String[]{"nonHarmonicity", "threshold"}),
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(AUDIO_SPECTRUM_ENVELOPE.getName(),
+							ListCell.getCollectionType(DoubleCell.TYPE)) };
+		}
 
-    /** Harmonic Spectral Deviation */
-    HARMONIC_SPECTRAL_DEVIATION(
-        "Harmonic Spectral Deviation",
-        "HarmonicSpectralVariation",
-        "Description HSD",
-        new String[]{"nonHarmonicity", "threshold"}),
+	}),
 
-    /** Harmonic Spectral Spread */
-    HARMONIC_SPECTRAL_SPREAD(
-        "Harmonic Spectral Spread",
-        "HarmonicSpectralSpread",
-        "Description HSS",
-        new String[]{"nonHarmonicity", "threshold"}),
+	/** Audio Spectrum Centroid / Spread */
+	AUDIO_SPECTRUM_CENTROID_SPREAD("Audio Spectrum Centroid / Spread", "AudioSpectrumCentroidSpread", "Description Audio Spectrum Centroid / Spread", false, new CellExtractor() {
 
-    /** Harmonic Spectral Variation */
-    HARMONIC_SPECTRAL_VARIATION(
-        "Harmonic Spectral Variation",
-        "HarmonicSpectralVariation",
-        "Description HSV",
-        new String[]{"nonHarmonicity", "threshold"}),
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			final double[] data = getAggregatedValues(aggregator, descriptors[0].getRaw());
+			final DataCell[] cells = new DataCell[2];
+			cells[MPEG7DocumentBuilder.CENTROID_IDX] = new DoubleCell(data[MPEG7DocumentBuilder.CENTROID_IDX]);
+			cells[MPEG7DocumentBuilder.SPREAD_IDX] = new DoubleCell(data[MPEG7DocumentBuilder.SPREAD_IDX]);
+			return cells;
+		}
 
-    /** Spectral Centroid */
-    SPECTRAL_CENTROID(
-        "Spectral Centroid",
-        "SpectralCentroid",
-        "Description SC",
-        new String[0]),
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			final UniqueNameGenerator generator = new UniqueNameGenerator(inSpec);
+			return new DataColumnSpec[] {
+					generator.newColumn("Audio Spectrum Centroid", DoubleCell.TYPE),
+					generator.newColumn("Audio Spectrum Spread", DoubleCell.TYPE) };
+		}
 
-    /** Audio Spectrum Basis */
-    AUDIO_SPECTRUM_BASIS(
-        "Audio Spectrum Basis",
-        "AudioSpectrumBasisProjection",
-        "Description ASB",
-        new String[]{"frames", "numic"}),
+	}),
 
-    /** Audio Spectrum Projection */
-    AUDIO_SPECTRUM_PROJECTION(
-        "Audio Spectrum Projection",
-        "AudioSpectrumBasisProjection",
-        "Description ASP",
-        new String[]{"frames", "numic"});
+	/** Audio Spectrum Flatness */
+	AUDIO_SPECTRUM_FLATNESS("Audio Spectrum Flatness", "AudioSpectrumFlatness", "Description ASF", true, new CellExtractor() {
 
-    private final String m_name;
-    private final String m_configName;
-    private final String m_description;
-    private final String[] m_parameters;
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-    private MPEG7FeatureType(final String name, final String configName,
-        final String description, final String[] parameters){
-        m_name = name;
-        m_configName = configName;
-        m_description = description;
-        m_parameters = parameters;
-    }
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] { new UniqueNameGenerator(inSpec).newColumn(AUDIO_SPECTRUM_FLATNESS.getName(),
+					ListCell.getCollectionType(DoubleCell.TYPE)) };
+		}
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return m_name;
-    }
+	}),
 
-    /**
-     * @return the configName
-     */
-    public String getConfigName() {
-        return m_configName;
-    }
+	/** Audio Harmonicity */
+	AUDIO_HARMONICITY("Audio Harmonicity", "AudioHarmonicity", "Description AH", false, new CellExtractor() {
 
-    /**
-     * @return the description
-     */
-    public String getDescription() {
-        return m_description;
-    }
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregatord,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-    /**
-     * @return <code>true</code> if this feature type has parameters, otherwise <code>false</code>
-     */
-    public boolean hasParameters() {
-        return (m_parameters != null && m_parameters.length > 0);
-    }
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			final UniqueNameGenerator generator = new UniqueNameGenerator(inSpec);
+			return new DataColumnSpec[] {
+					generator.newColumn(AUDIO_HARMONICITY.getName() + "- Harmonic Ratio", DoubleCell.TYPE),
+					generator.newColumn(AUDIO_HARMONICITY.getName() + "- Upper Limit Of Harmonicity", DoubleCell.TYPE) };
+		}
 
-    /**
-     * @return the parameters
-     */
-    public String[] getParameters() {
-        return m_parameters;
-    }
+	}),
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return getName();
-    }
+	/** Audio Fundamental Frequency */
+	AUDIO_FUNDAMENTAL_FREQUENCY("Audio Fundamental Frequency", "AudioFundamentalFrequency", "Description AFF", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] { new UniqueNameGenerator(inSpec)
+					.newColumn(AUDIO_FUNDAMENTAL_FREQUENCY.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Log Attack Time */
+	LOG_ATTACK_TIME("Log Attack Time", "LogAttackTime", "Description LAT", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(LOG_ATTACK_TIME.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Temporal Centroid */
+	TEMPORAL_CENTROID("Temporal Centroid", "TemporalCentroid", "Description TC", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(TEMPORAL_CENTROID.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Harmonic Spectral Centroid */
+	HARMONIC_SPECTRAL_CENTROID("Harmonic Spectral Centroid", "HarmonicSpectralCentroid", "Description HSC", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(HARMONIC_SPECTRAL_CENTROID.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Harmonic Spectral Deviation */
+	HARMONIC_SPECTRAL_DEVIATION("Harmonic Spectral Deviation", "HarmonicSpectralDeviation", "Description HSD", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(HARMONIC_SPECTRAL_DEVIATION.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Harmonic Spectral Spread */
+	HARMONIC_SPECTRAL_SPREAD("Harmonic Spectral Spread", "HarmonicSpectralSpread", "Description HSS", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(HARMONIC_SPECTRAL_SPREAD.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Harmonic Spectral Variation */
+	HARMONIC_SPECTRAL_VARIATION("Harmonic Spectral Variation", "HarmonicSpectralVariation", "Description HSV", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(HARMONIC_SPECTRAL_VARIATION.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Spectral Centroid */
+	SPECTRAL_CENTROID("Spectral Centroid", "SpectralCentroid", "Description SC", false, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			return new DataColumnSpec[] {
+					new UniqueNameGenerator(inSpec).newColumn(SPECTRAL_CENTROID.getName(), DoubleCell.TYPE) };
+		}
+
+	}),
+
+	/** Audio Spectrum Basis / Projection */
+	AUDIO_SPECTRUM_BASIS_PROJECTION("Audio Spectrum Basis / Projection", "AudioSpectrumBasisProjection", "Description Audio Spectrum Basis / Projection", true, new CellExtractor() {
+
+		@Override
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+			final UniqueNameGenerator generator = new UniqueNameGenerator(inSpec);
+			return new DataColumnSpec[] {
+					generator.newColumn("Audio Spectrum Basis", ListCell.getCollectionType(DoubleCell.TYPE)),
+					generator.newColumn("Audio Spectrum Projection", ListCell.getCollectionType(DoubleCell.TYPE)) };
+		}
+
+	});
+
+	private final String m_name;
+	private final String m_configName;
+	private final String m_description;
+	private final boolean m_hasParameters;
+	private final CellExtractor m_cellExtractor;
+
+	private MPEG7FeatureType(final String name, final String configName, final String description,
+			final boolean hasParameters, final CellExtractor cellExtractor) {
+		m_name = name;
+		m_configName = configName;
+		m_description = description;
+		m_hasParameters = hasParameters;
+		m_cellExtractor = cellExtractor;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return m_name;
+	}
+
+	/**
+	 * @return the configName
+	 */
+	public String getConfigName() {
+		return m_configName;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return m_description;
+	}
+
+	/**
+	 * @return <code>true</code> if has parameters, otherwise <code>false</code>
+	 */
+	public boolean hasParameters() {
+		return m_hasParameters;
+	}
+
+	public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec) {
+		return m_cellExtractor.getColSpecs(inSpec);
+	}
+
+	public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+			final MPEG7AudioDescriptor... descriptors) {
+		return m_cellExtractor.getCells(aggregator, descriptors);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return getName();
+	}
+
+	private interface CellExtractor {
+		/**
+		 * @param audioDescriptor
+		 *            the audio descriptor
+		 * @return the extracted data as {@link DataCell}
+		 */
+		public DataCell[] getCells(final FeatureExtractor.Aggregator aggregator,
+				final MPEG7AudioDescriptor... descriptors);
+
+		/**
+		 * @return the {@link DataType}
+		 */
+		public DataColumnSpec[] getColSpecs(final DataTableSpec inSpec);
+	}
+
+	private static double[] getAggregatedValues(final FeatureExtractor.Aggregator aggregator, final double[][] values) {
+		if (aggregator == FeatureExtractor.Aggregator.MEAN) {
+			return MathUtils.mean(values);
+		} else if (aggregator == FeatureExtractor.Aggregator.STD_DEVIATION) {
+			return MathUtils.standardDeviation(values);
+		}
+		return null;
+	}
 
 }
