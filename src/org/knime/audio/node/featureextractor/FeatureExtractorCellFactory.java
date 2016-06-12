@@ -50,13 +50,16 @@ package org.knime.audio.node.featureextractor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.StatUtils;
 import org.knime.audio.data.Audio;
 import org.knime.audio.data.AudioSamples;
 import org.knime.audio.data.cell.AudioCell;
@@ -86,8 +89,10 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 	private final FeatureExtractor[] m_extractors;
 	private final int m_windowSizeInSamples;
 	private final int m_windowsOverlapInPercent;
-	private final FeatureExtractor.Aggregator m_aggregator;
+	private final FeatureExtractor.Aggregator[] m_aggregators;
 	private final Set<FeatureExtractor> m_sortedExtractors;
+	private final boolean m_firstDerivative;
+	private final boolean m_secondDerivative;
 
 	/**
 	 *
@@ -96,26 +101,29 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 	 * @param extractors
 	 * @param windowSizeInSamples
 	 * @param windowsOverlapInPercent
-	 * @param aggregatorMethod
+	 * @param aggregators
 	 */
 	FeatureExtractorCellFactory(final int audioColIdx,
 			final DataColumnSpec[] colSpecs, final FeatureExtractor[] extractors,
 			final int windowSizeInSamples, final int windowsOverlapInPercent,
-			final String aggregatorMethod){
+			final FeatureExtractor.Aggregator[] aggregators, final boolean firstDerivative,
+			final boolean secondDerivative) {
 		super(colSpecs);
 		if (audioColIdx < 0) {
 			throw new IllegalArgumentException("Invalid audio column");
 		}
 
-		if(StringUtils.isBlank(aggregatorMethod)){
+		if ((aggregators == null) || (aggregators.length < 1)) {
 			throw new IllegalArgumentException("Aggregator method cannot be empty");
 		}
 		m_audioColIdx = audioColIdx;
 		m_extractors = extractors;
 		m_windowSizeInSamples = windowSizeInSamples;
 		m_windowsOverlapInPercent = windowsOverlapInPercent;
-		m_aggregator = FeatureExtractor.getAggregator(aggregatorMethod);
+		m_aggregators = aggregators;
 		m_sortedExtractors = sortExtractors(extractors);
+		m_firstDerivative = firstDerivative;
+		m_secondDerivative = secondDerivative;
 	}
 
 	/**
@@ -141,40 +149,84 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 			final List<Integer> chunkIndices = getChunkStartIndices(audioSamples,
 					m_windowSizeInSamples, windowOverlapOffset);
 
-			/* Sort the feature extractors */
-			//            LOGGER.debug("Sort the feature extractors");
-			//            final Set<FeatureExtractor> sortedExtractors = sortExtractors(m_extractors);
-
 			/* Extract features per chunk */
 			LOGGER.debug("Extract features per chunk");
 			final Map<FeatureType, List<double[]>> featuresPerChunk =
 					extractFeaturesPerChunk(m_sortedExtractors, chunkIndices,
 							audioSamples, m_windowSizeInSamples);
 
-			/* Aggregate all of the features */
-			LOGGER.debug("Aggregate the features");
-			final Map<FeatureType, double[]> aggregatedFeatures =
-					aggregateFeatures(featuresPerChunk, m_aggregator);
+			Map<FeatureType, List<double[]>> firstDerivative = null;
+			if (m_firstDerivative) {
+				firstDerivative = getDerivative(featuresPerChunk);
+			}
+
+			Map<FeatureType, List<double[]>> secondDerivative = null;
+			if (m_secondDerivative) {
+				if (firstDerivative == null) {
+					firstDerivative = getDerivative(featuresPerChunk);
+				}
+				secondDerivative = getDerivative(firstDerivative);
+			}
 
 			/* Put extracted features into DoubleCell */
 			int cellIdx = 0;
-			for(final FeatureExtractor extractor : m_extractors){
-				final double[] features = aggregatedFeatures.get(extractor.getType());
+			for (final FeatureExtractor extractor : m_extractors) {
+				LOGGER.debug("Aggregate features");
+				Map<FeatureExtractor.Aggregator, double[]> aggFeatures = aggregateFeatures(
+						featuresPerChunk.get(extractor.getType()));
 
-				final DataCell[] featureCells = extractor.getType()
-						.getDataCells(features);
-				final int totalCells = featureCells.length;
-				LOGGER.debug("Put features of '" + extractor.getType().getName()
-						+ "' into cell location " + cellIdx + " - "
-						+ ((cellIdx + totalCells) - 1));
-				System.arraycopy(featureCells, 0, cells, cellIdx, totalCells);
-				cellIdx += totalCells;
+				cellIdx = buildCells(cellIdx, cells, extractor, aggFeatures);
+
+				if (m_firstDerivative) {
+					aggFeatures = aggregateFeatures(firstDerivative.get(extractor.getType()));
+					cellIdx = buildCells(cellIdx, cells, extractor, aggFeatures);
+				}
+
+				if (m_secondDerivative) {
+					aggFeatures = aggregateFeatures(secondDerivative.get(extractor.getType()));
+					cellIdx = buildCells(cellIdx, cells, extractor, aggFeatures);
+				}
+				// for (final Entry<FeatureExtractor.Aggregator, double[]> entry
+				// : aggFeatures.entrySet()) {
+				// final DataCell[] featureCells =
+				// extractor.getType().getDataCells(entry.getValue());
+				// final int totalCells = featureCells.length;
+				// LOGGER.debug("Put features of '" +
+				// extractor.getType().getName() + "' into cell location " +
+				// cellIdx
+				// + " - " + ((cellIdx + totalCells) - 1));
+				// System.arraycopy(featureCells, 0, cells, cellIdx,
+				// totalCells);
+				// cellIdx += totalCells;
+				// }
 			}
 		} catch (final Exception ex) {
 			LOGGER.error(ex);
 		}
 
 		return cells;
+	}
+
+	private int buildCells(final int currentCellIdx, final DataCell[] cells,
+			final FeatureExtractor extractor, final Map<FeatureExtractor.Aggregator, double[]> aggFeatures) {
+		int cellIdx = currentCellIdx;
+		for (final Entry<FeatureExtractor.Aggregator, double[]> entry : aggFeatures.entrySet()) {
+			final DataCell[] featureCells = extractor.getType().getDataCells(entry.getValue());
+			final int totalCells = featureCells.length;
+			LOGGER.debug("Put features of '" + extractor.getType().getName() + "' into cell location " + cellIdx + " - "
+					+ ((currentCellIdx + totalCells) - 1));
+			System.arraycopy(featureCells, 0, cells, cellIdx, totalCells);
+			cellIdx += totalCells;
+		}
+		return cellIdx;
+	}
+
+	private Map<FeatureType, List<double[]>> getDerivative(final Map<FeatureType, List<double[]>> data) {
+		final Map<FeatureType, List<double[]>> result = new HashMap<FeatureType, List<double[]>>();
+		for (final Entry<FeatureType, List<double[]>> entry : data.entrySet()) {
+			result.put(entry.getKey(), MathUtils.derivative(entry.getValue()));
+		}
+		return result;
 	}
 
 	private Set<FeatureExtractor> sortExtractors(final FeatureExtractor[] extractors) {
@@ -261,29 +313,37 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 		return result;
 	}
 
-	private Map<FeatureType, double[]> aggregateFeatures(final Map<FeatureType, List<double[]>> featuresPerChunk,
-			final FeatureExtractor.Aggregator aggregator) {
-		final Map<FeatureType, double[]> result = new HashMap<FeatureType, double[]>();
-
-		for (final Entry<FeatureType, List<double[]>> entry : featuresPerChunk.entrySet()) {
-			final String text = "Aggregate feature of '" + entry.getKey().getName() + "' with ";
-			double[] aggregation = new double[0];
-			final double[][] values = entry.getValue().toArray(new double[entry.getValue().size()][]);
-			switch (aggregator) {
-			case MEAN:
-				LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.MEAN.getName() + "'");
-				aggregation = MathUtils.mean(values);
-				break;
-			case STD_DEVIATION:
-				LOGGER.debug(text + "'" + FeatureExtractor.Aggregator.STD_DEVIATION.getName() + "'");
-				aggregation = MathUtils.standardDeviation(values);
-				break;
-			default:
-				break;
+	private Map<FeatureExtractor.Aggregator, double[]> aggregateFeatures(
+			final List<double[]> featuresPerChunk) {
+		final Map<FeatureExtractor.Aggregator, double[]> result = new LinkedHashMap<FeatureExtractor.Aggregator, double[]>();
+		final double[][] features = featuresPerChunk.toArray(new double[featuresPerChunk.size()][]);
+		final RealMatrix rm = MatrixUtils.createRealMatrix(features);
+		for (final FeatureExtractor.Aggregator aggregator : m_aggregators) {
+			final double[] aggregationValues = new double[rm.getColumnDimension()];
+			for (int i = 0; i < aggregationValues.length; i++) {
+				switch (aggregator) {
+				case MEAN:
+					aggregationValues[i] = StatUtils.mean(rm.getColumn(i));
+					break;
+				case STD_DEVIATION:
+					aggregationValues[i] = Math.sqrt(StatUtils.variance(rm.getColumn(i)));
+					break;
+				case MAX:
+					aggregationValues[i] = StatUtils.max(rm.getColumn(i));
+					break;
+				case MIN:
+					aggregationValues[i] = StatUtils.min(rm.getColumn(i));
+					break;
+				case VARIANCE:
+					aggregationValues[i] = StatUtils.variance(rm.getColumn(i));
+					break;
+				default:
+					aggregationValues[i] = 0;
+					break;
+				}
 			}
-			result.put(entry.getKey(), aggregation);
+			result.put(aggregator, aggregationValues);
 		}
-
 		return result;
 	}
 

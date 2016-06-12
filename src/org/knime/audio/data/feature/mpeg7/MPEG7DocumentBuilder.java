@@ -606,7 +606,6 @@ public class MPEG7DocumentBuilder implements MsgListener {
 			final float[] envelope = m.getEnvelope();
 			assert envelope.length == cols;
 			for (int c = 0; c < cols; ++c) {
-				// buffer.append(format(envelope[c]));
 				rawData[i][c] = envelope[c];
 				if (doc != null) {
 					buffer.append(envelope[c]);
@@ -752,8 +751,59 @@ public class MPEG7DocumentBuilder implements MsgListener {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private void encodeASF(final Document doc, final Element audioSegment) {
+		if (listASF.isEmpty()) {
+			return;
+		}
 
+		Collections.sort(listASF);
+		final MsgAudioSpectrumFlatness msg = (MsgAudioSpectrumFlatness) listASF.get(0);
+
+		final int rows = listASF.size();
+		final int cols = msg.getFlatnessLength();
+
+		final Map<String, Object> prop = new HashMap<String, Object>();
+		prop.put("loEdge", msg.lo_edge);
+		prop.put("hiEdge", msg.hi_edge);
+		prop.put(NR_OF_SAMPLES, rows * cols);
+		prop.put(VECTOR_SIZE, cols);
+
+		final StringBuffer buffer = new StringBuffer();
+		final double[][] rawData = new double[rows][cols];
+		for (int i = 0; i < listASF.size(); i++) {
+			final float[] flatness = ((MsgAudioSpectrumFlatness) listASF.get(i)).getFlatness();
+			assert flatness.length == cols;
+			for (int c = 0; c < cols; ++c) {
+				rawData[i][c] = flatness[c];
+				if (doc != null) {
+					buffer.append(flatness[c]);
+					buffer.append(SPACE);
+				}
+			}
+			if (doc != null) {
+				buffer.append(NEWLINE);
+			}
+		}
+
+		final MPEG7AudioDescriptor descriptor = new MPEG7AudioDescriptor(rawData, prop);
+		m_descriptors.put(MPEG7FeatureType.AUDIO_SPECTRUM_FLATNESS.getConfigName(), descriptor);
+
+		if (doc != null) {
+			final Element audio_descriptor = doc.createElementNS(Namespace.MPEG7, "AudioDescriptor");
+			audio_descriptor.setAttribute("loEdge", "" + msg.lo_edge);
+			audio_descriptor.setAttribute("hiEdge", "" + msg.hi_edge);
+			audio_descriptor.setAttributeNS(Namespace.XSI, "xsi:type", "AudioSpectrumFlatnessType");
+			audioSegment.appendChild(audio_descriptor);
+
+			final Element sov = getSeriesOfVector(doc, msg.hopsize, rows, cols);
+			audio_descriptor.appendChild(sov);
+
+			final Element raw = doc.createElementNS(Namespace.MPEG7, "Raw");
+			raw.setAttributeNS(Namespace.MPEG7, "mpeg7:dim", rows + " " + cols);
+			sov.appendChild(raw);
+			raw.appendChild(doc.createTextNode(buffer.toString()));
+		}
 	}
 
 	@SuppressWarnings("unchecked")

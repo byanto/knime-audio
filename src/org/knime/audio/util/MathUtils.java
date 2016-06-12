@@ -48,99 +48,108 @@
  */
 package org.knime.audio.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Budi Yanto, KNIME.com
  */
 public class MathUtils {
 
-    /**
-     * @param values a 2-Dimensional array whose mean should be calculated
-     * @return the mean of the given values
-     */
-    public static double[] mean(final double[][] values){
-        if(values == null){
-            throw new IllegalArgumentException("Values cannot be null");
-        }
+	/**
+	 * @param values a 2-Dimensional array whose mean should be calculated
+	 * @return the mean of the given values
+	 */
+	public static double[] mean(final double[][] values){
+		if(values == null){
+			throw new IllegalArgumentException("Values cannot be null");
+		}
 
-        if(values.length == 1){
-            return values[0];
-        }
+		if(values.length == 1){
+			return values[0];
+		}
 
-        // find the max number of dimensions
-        int max = -1;
-        for (int i = 0; i < values.length; ++i) {
-            if ((values[i] != null) && (values[i].length > max)) {
-                max = values[i].length;
-            }
-        }
+		// find the max number of dimensions
+		int max = -1;
+		for (int i = 0; i < values.length; ++i) {
+			if ((values[i] != null) && (values[i].length > max)) {
+				max = values[i].length;
+			}
+		}
 
-        double[] result;
-        if (max <= 0) {
-            result = new double[]{0.0};
-        } else {
-            // now calculate means over all the dimensions
-            result = new double[max];
-            for (int i = 0; i < max; ++i) {
-                int count = 0;
-                double sum = 0.0;
-                for (int j = 0; j < values.length; ++j) {
-                    if ((values[j] != null) && (values[j].length > i)) {
-                        sum += values[j][i];
-                        count++;
-                    }
-                }
-                if (count == 0) {
-                    result[i] = 0.0;
-                } else {
-                    result[i] = sum / (count);
-                }
-            }
-        }
-        return result;
-    }
+		double[] result;
+		if (max <= 0) {
+			result = new double[]{0.0};
+		} else {
+			// now calculate means over all the dimensions
+			result = new double[max];
+			for (int i = 0; i < max; ++i) {
+				int count = 0;
+				double sum = 0.0;
+				for (int j = 0; j < values.length; ++j) {
+					if ((values[j] != null) && (values[j].length > i)) {
+						sum += values[j][i];
+						count++;
+					}
+				}
+				if (count == 0) {
+					result[i] = 0.0;
+				} else {
+					result[i] = sum / (count);
+				}
+			}
+		}
+		return result;
+	}
 
-    /**
-     * @param values a 2-Dimensional array whose mean should be calculated
-     * @return the standard deviation of the given values
-     */
-    public static double[] standardDeviation(final double[][] values){
-        if(values == null){
-            throw new IllegalArgumentException("Values cannot be null");
-        }
+	/**
+	 * @param values a 2-Dimensional array whose mean should be calculated
+	 * @return the standard deviation of the given values
+	 */
+	public static double[] standardDeviation(final double[][] values){
+		if(values == null){
+			throw new IllegalArgumentException("Values cannot be null");
+		}
 
-        if(values.length <= 1){
-            return new double[values[0].length];
-        }
+		if(values.length <= 1){
+			return new double[values[0].length];
+		}
 
-        // find the max number of dimensions
-        int max = -1;
-        for (int i = 0; i < values.length; ++i) {
-            if ((values[i] != null) && (values[i].length > max)) {
-                max = values[i].length;
-            }
-        }
+		// find the max number of dimensions
+		int max = -1;
+		for (int i = 0; i < values.length; ++i) {
+			if ((values[i] != null) && (values[i].length > max)) {
+				max = values[i].length;
+			}
+		}
 
-        double[] result = new double[max];
-        for(int col = 0; col < max; col++){
-            int count = 0;
-            double avg = 0.0;
-            for(int row = 0; row < values.length; row++){
-                if((values[row] != null) && (values[row].length > col)){
-                    avg += values[row][col];
-                    count++;
-                }
-            }
-            avg /= count;
-            for(int row = 0; row < values.length; row++){
-                if((values[row] != null) && (values[row].length > col)){
-                    result[col] += Math.pow(values[row][col] - avg, 2);
-                }
-            }
-            result[col] = Math.sqrt(result[col] / (count - 1));
+		final double[] result = new double[max];
+		for(int col = 0; col < max; col++){
+			int count = 0;
+			double avg = 0.0;
+			for(int row = 0; row < values.length; row++){
+				if((values[row] != null) && (values[row].length > col)){
+					avg += values[row][col];
+					count++;
+				}
+			}
+			avg /= count;
+			for(int row = 0; row < values.length; row++){
+				if((values[row] != null) && (values[row].length > col)){
+					result[col] += Math.pow(values[row][col] - avg, 2);
+				}
+			}
+			result[col] = Math.sqrt(result[col] / (count - 1));
 
-        }
-        return result;
-    }
+		}
+		return result;
+	}
+
+	public static List<double[]> derivative(final List<double[]> data) {
+		final List<double[]> result = new ArrayList<double[]>(data.size());
+		result.addAll(data);
+		return result;
+	}
 
 }

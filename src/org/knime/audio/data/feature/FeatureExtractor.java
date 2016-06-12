@@ -59,210 +59,229 @@ import org.knime.audio.data.AudioSamples;
  */
 public abstract class FeatureExtractor {
 
-    private final FeatureType m_type;
-    private final Map<String, Double> m_parameters = new LinkedHashMap<String, Double>();
+	private final FeatureType m_type;
+	private final Map<String, Double> m_parameters = new LinkedHashMap<String, Double>();
 
-    /**
-     *
-     * @param type
-     */
-    protected FeatureExtractor(final FeatureType type) {
-        this(type, new double[0]);
-    }
+	/**
+	 *
+	 * @param type
+	 */
+	protected FeatureExtractor(final FeatureType type) {
+		this(type, new double[0]);
+	}
 
-    /**
-     *
-     * @param type
-     * @param parameterValues
-     */
-    protected FeatureExtractor(final FeatureType type, final double[] parameterValues){
-        if(type == null){
-            throw new IllegalArgumentException("Feature type cannot be null");
-        }
+	/**
+	 *
+	 * @param type
+	 * @param parameterValues
+	 */
+	protected FeatureExtractor(final FeatureType type, final double[] parameterValues){
+		if(type == null){
+			throw new IllegalArgumentException("Feature type cannot be null");
+		}
 
-        final String[] parameters = type.getParameters();
+		final String[] parameters = type.getParameters();
 
-        if(parameterValues.length != parameters.length){
-            throw new IllegalArgumentException("Parameters and their default "
-                + "values must have the same length.");
-        }
+		if(parameterValues.length != parameters.length){
+			throw new IllegalArgumentException("Parameters and their default "
+					+ "values must have the same length.");
+		}
 
-        m_type = type;
-        for(int i = 0; i < parameters.length; i++){
-            m_parameters.put(parameters[i], parameterValues[i]);
-        }
-    }
+		m_type = type;
+		for(int i = 0; i < parameters.length; i++){
+			m_parameters.put(parameters[i], parameterValues[i]);
+		}
+	}
 
-    /**
-     *
-     * @return the feature type of this extractor
-     */
-    public FeatureType getType(){
-        return m_type;
-    }
+	/**
+	 *
+	 * @return the feature type of this extractor
+	 */
+	public FeatureType getType(){
+		return m_type;
+	}
 
-    /**
-     * Returns the value of the given parameter
-     * @param parameter the parameter whose value should be returned
-     * @return the value of the given parameter, returns null if the parameter doesn't exist
-     */
-    public Double getParameterValue(final String parameter){
-        if(m_parameters != null){
-            return m_parameters.get(parameter);
-        }
-        return null;
-    }
+	/**
+	 * Returns the value of the given parameter
+	 * @param parameter the parameter whose value should be returned
+	 * @return the value of the given parameter, returns null if the parameter doesn't exist
+	 */
+	public Double getParameterValue(final String parameter){
+		if(m_parameters != null){
+			return m_parameters.get(parameter);
+		}
+		return null;
+	}
 
-    /**
-     * Sets the value of the given parameter, do nothing if the given parameter doesn't exist
-     * @param parameter the parameter whose value should be set
-     * @param value the value to set
-     */
-    public void setParameterValue(final String parameter, final double value){
-        if(m_parameters != null &&  m_parameters.containsKey(parameter)){
-            m_parameters.put(parameter, value);
-        }
-    }
+	/**
+	 * Sets the value of the given parameter, do nothing if the given parameter doesn't exist
+	 * @param parameter the parameter whose value should be set
+	 * @param value the value to set
+	 */
+	public void setParameterValue(final String parameter, final double value){
+		if((m_parameters != null) &&  m_parameters.containsKey(parameter)){
+			m_parameters.put(parameter, value);
+		}
+	}
 
-    /**
-     * Extract the feature of the given sample chunk
-     * @param samples the samples of the audio whose feature should be extracted
-     * @param additionalFeatureValues the values of the dependencies if needed for the extraction
-     * @return the extracted feature of the given sample chunk
-     * @throws Exception
-     */
-    public abstract double[] extractFeature(final AudioSamples samples,
-        final double[][] additionalFeatureValues) throws Exception;
+	/**
+	 * Extract the feature of the given sample chunk
+	 * @param samples the samples of the audio whose feature should be extracted
+	 * @param additionalFeatureValues the values of the dependencies if needed for the extraction
+	 * @return the extracted feature of the given sample chunk
+	 * @throws Exception
+	 */
+	public abstract double[] extractFeature(final AudioSamples samples,
+			final double[][] additionalFeatureValues) throws Exception;
 
-    /**
-     * @param windowSize the windows size of the sample chunk
-     * @return the dimension of the extracted feature values
-     */
-    public abstract int getDimension(final int windowSize);
+	/**
+	 * @param windowSize the windows size of the sample chunk
+	 * @return the dimension of the extracted feature values
+	 */
+	public abstract int getDimension(final int windowSize);
 
-    /**
-     *
-     * @param type
-     * @return the feature extractor for the given feature type
-     */
-    public static FeatureExtractor getFeatureExtractor(final FeatureType type){
-        switch (type) {
-            case POWER_SPECTRUM:
-                return new PowerSpectrum();
-            case MAGNITUDE_SPECTRUM:
-                return new MagnitudeSpectrum();
-            case MFCC:
-                return new MFCC();
-            case SPECTRAL_CENTROID:
-                return new SpectralCentroid();
-            case SPECTRAL_ROLLOFF_POINT:
-                return new SpectralRolloffPoint();
-            case COMPACTNESS:
-                return new Compactness();
-            case ROOT_MEAN_SQUARE:
-                return new RootMeanSquare();
-            case ZERO_CROSSINGS:
-                return new ZeroCrossings();
-            case LPC:
-                return new LPC();
-            case PEAK_DETECTION:
-                return new PeakDetection();
-            case CONSTANTQ:
-                return new ConstantQ();
-            case CHROMA:
-                return new Chroma();
-            default:
-                throw new IllegalArgumentException("There isn't extractor defined "
-                    + "for the given feature type: " + type);
-        }
-    }
+	/**
+	 *
+	 * @param type
+	 * @return the feature extractor for the given feature type
+	 */
+	public static FeatureExtractor getFeatureExtractor(final FeatureType type){
+		switch (type) {
+		case POWER_SPECTRUM:
+			return new PowerSpectrum();
+		case MAGNITUDE_SPECTRUM:
+			return new MagnitudeSpectrum();
+		case MFCC:
+			return new MFCC();
+		case SPECTRAL_CENTROID:
+			return new SpectralCentroid();
+		case SPECTRAL_ROLLOFF_POINT:
+			return new SpectralRolloffPoint();
+		case COMPACTNESS:
+			return new Compactness();
+		case ROOT_MEAN_SQUARE:
+			return new RootMeanSquare();
+		case ZERO_CROSSINGS:
+			return new ZeroCrossings();
+		case LPC:
+			return new LPC();
+		case PEAK_DETECTION:
+			return new PeakDetection();
+		case CONSTANTQ:
+			return new ConstantQ();
+		case CHROMA:
+			return new Chroma();
+		default:
+			throw new IllegalArgumentException("There isn't extractor defined "
+					+ "for the given feature type: " + type);
+		}
+	}
 
-    /**
-     *
-     * @param types
-     * @return the feature extractors
-     */
-    public static FeatureExtractor[] getFeatureExtractors(final FeatureType... types){
-        final FeatureExtractor[] extractors = new FeatureExtractor[types.length];
-        for(int i = 0; i < extractors.length; i++){
-            extractors[i] = getFeatureExtractor(types[i]);
-        }
-        return extractors;
-    }
+	/**
+	 *
+	 * @param types
+	 * @return the feature extractors
+	 */
+	public static FeatureExtractor[] getFeatureExtractors(final FeatureType... types){
+		final FeatureExtractor[] extractors = new FeatureExtractor[types.length];
+		for(int i = 0; i < extractors.length; i++){
+			extractors[i] = getFeatureExtractor(types[i]);
+		}
+		return extractors;
+	}
 
-    public static Aggregator getAggregator(final String aggregator){
-        if(aggregator.equals(Aggregator.MEAN.getName())){
-            return Aggregator.MEAN;
-        }else if(aggregator.equals(Aggregator.STD_DEVIATION.getName())){
-            return Aggregator.STD_DEVIATION;
-        }else{
-            return null;
-        }
-    }
+	public static Aggregator getAggregator(final String aggregator){
+		if(aggregator.equals(Aggregator.MEAN.getName())){
+			return Aggregator.MEAN;
+		} else if (aggregator.equals(Aggregator.STD_DEVIATION.getName())) {
+			return Aggregator.STD_DEVIATION;
+		} else if (aggregator.equals(Aggregator.MAX.getName())) {
+			return Aggregator.MAX;
+		} else if (aggregator.equals(Aggregator.MIN.getName())) {
+			return Aggregator.MIN;
+		} else if (aggregator.equals(Aggregator.VARIANCE.getName())) {
+			return Aggregator.VARIANCE;
+		} else {
+			throw new IllegalArgumentException("Aggregator " + aggregator + " is not defined.");
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((m_parameters == null) ? 0 : m_parameters.hashCode());
-        result = prime * result + ((m_type == null) ? 0 : m_type.hashCode());
-        return result;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((m_parameters == null) ? 0 : m_parameters.hashCode());
+		result = (prime * result) + ((m_type == null) ? 0 : m_type.hashCode());
+		return result;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        FeatureExtractor other = (FeatureExtractor)obj;
-        if (m_parameters == null) {
-            if (other.m_parameters != null) {
-                return false;
-            }
-        } else if (!m_parameters.equals(other.m_parameters)) {
-            return false;
-        }
-        if (m_type != other.m_type) {
-            return false;
-        }
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final FeatureExtractor other = (FeatureExtractor)obj;
+		if (m_parameters == null) {
+			if (other.m_parameters != null) {
+				return false;
+			}
+		} else if (!m_parameters.equals(other.m_parameters)) {
+			return false;
+		}
+		if (m_type != other.m_type) {
+			return false;
+		}
+		return true;
+	}
 
 
 
-    public enum Aggregator{
-        MEAN("Mean"),
+	public enum Aggregator{
+		MEAN("Mean", true),
 
-        STD_DEVIATION("Standard Deviation");
+		STD_DEVIATION("Standard Deviation", false),
 
-        private final String m_name;
-        private Aggregator(final String name){
-            m_name = name;
-        }
+		VARIANCE("Variance", false),
 
-        public String getName(){
-            return m_name;
-        }
+		MAX("Max", false),
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return getName();
-        }
+		MIN("Min", false);
 
-    }
+		private final String m_name;
+		private final boolean m_defaultValue;
+
+		private Aggregator(final String name, final boolean defaultValue) {
+			m_name = name;
+			m_defaultValue = defaultValue;
+		}
+
+		public String getName(){
+			return m_name;
+		}
+
+		public boolean getDefaultValue() {
+			return m_defaultValue;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String toString() {
+			return getName();
+		}
+
+	}
 }

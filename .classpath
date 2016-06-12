@@ -7,5 +7,35 @@
 	<classpathentry kind="lib" path="lib/MPEG7AudioEnc-0.4-rc3.jar"/>
 	<classpathentry kind="lib" path="lib/sphinx4-core-5prealpha-20160218.203526-7.jar"/>
 	<classpathentry kind="lib" path="lib/java-sdk-2.9.0-jar-with-dependencies-ibmwatson.jar" sourcepath="/home/budiyanto/Documents/Masterarbeit_NotSync/Libraries/IBM-Watson/java-sdk-2.9.0-sources-ibmwatson.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-annotations-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/api/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-media-json-jackson-2.22.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/aopalliance-repackaged-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/asm-debug-all-5.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/hk2-api-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/hk2-locator-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/hk2-utils-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/javax.inject-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/javax.servlet-api-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jaxb-api-2.2.7.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jersey-guava-2.22.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/org.osgi.core-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/osgi-resource-locator-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/persistence-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-core-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-databind-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-jaxrs-base-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-jaxrs-json-provider-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/ext/jackson/jackson-module-jaxb-annotations-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-container-servlet-core.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-container-servlet.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-entity-filtering-2.22.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-media-jaxb.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-server.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

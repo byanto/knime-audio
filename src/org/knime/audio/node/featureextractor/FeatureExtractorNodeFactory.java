@@ -11,48 +11,48 @@ import org.knime.core.node.NodeView;
  * @author Budi Yanto, KNIME.com
  */
 public class FeatureExtractorNodeFactory
-        extends NodeFactory<FeatureExtractorNodeModel> {
+extends NodeFactory<FeatureExtractorNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FeatureExtractorNodeModel createNodeModel() {
-        return new FeatureExtractorNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FeatureExtractorNodeModel createNodeModel() {
+		return new FeatureExtractorNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<FeatureExtractorNodeModel> createNodeView(final int viewIndex,
-            final FeatureExtractorNodeModel nodeModel) {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<FeatureExtractorNodeModel> createNodeView(final int viewIndex,
+			final FeatureExtractorNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new FeatureExtractorNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new FeatureExtractorNodeDialog();
+	}
 
 }
 
