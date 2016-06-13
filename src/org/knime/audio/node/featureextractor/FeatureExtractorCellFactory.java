@@ -94,6 +94,8 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 	private final boolean m_firstDerivative;
 	private final boolean m_secondDerivative;
 
+	private static int DEF_DERIVATIVE_REGRESSION_WINDOW = 2;
+
 	/**
 	 *
 	 * @param audioColIdx
@@ -224,7 +226,7 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 	private Map<FeatureType, List<double[]>> getDerivative(final Map<FeatureType, List<double[]>> data) {
 		final Map<FeatureType, List<double[]>> result = new HashMap<FeatureType, List<double[]>>();
 		for (final Entry<FeatureType, List<double[]>> entry : data.entrySet()) {
-			result.put(entry.getKey(), MathUtils.derivative(entry.getValue()));
+			result.put(entry.getKey(), MathUtils.derivative(entry.getValue(), DEF_DERIVATIVE_REGRESSION_WINDOW));
 		}
 		return result;
 	}

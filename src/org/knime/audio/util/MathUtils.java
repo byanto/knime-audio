@@ -51,6 +51,9 @@ package org.knime.audio.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
+
 /**
  *
  * @author Budi Yanto, KNIME.com
@@ -146,9 +149,37 @@ public class MathUtils {
 		return result;
 	}
 
-	public static List<double[]> derivative(final List<double[]> data) {
+	/**
+	 * Calculate derivative of acoustic features
+	 * See http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
+	 * @param data
+	 * @param regressionWindow
+	 * @return
+	 */
+	public static List<double[]> derivative(final List<double[]> data, final int regressionWindow) {
 		final List<double[]> result = new ArrayList<double[]>(data.size());
-		result.addAll(data);
+
+		for (int i = 0; i < data.size(); i++) {
+			double sumDenominator = 0;
+			RealVector sumNumerator = new ArrayRealVector(new double[data.get(i).length]);
+			for (int n = 1; n <= regressionWindow; n++) {
+				int prevIdx = i - n;
+				if (prevIdx < 0) {
+					prevIdx = 0;
+				}
+				int nextIdx = i + n;
+				if (nextIdx >= data.size()) {
+					nextIdx = data.size() - 1;
+				}
+				final ArrayRealVector prevVector = new ArrayRealVector(data.get(prevIdx));
+				final ArrayRealVector nextVector = new ArrayRealVector(data.get(nextIdx));
+				sumNumerator = sumNumerator.add(nextVector.subtract(prevVector).mapMultiplyToSelf(n));
+				sumDenominator += Math.pow(n, 2);
+			}
+			final RealVector derivative = sumNumerator.mapDivideToSelf(2 * sumDenominator);
+			result.add(derivative.toArray());
+		}
+
 		return result;
 	}
 
