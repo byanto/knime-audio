@@ -44,40 +44,31 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 22, 2016 (budiyanto): created
+ *   Jun 21, 2016 (budiyanto): created
  */
 package org.knime.audio.data.feature;
 
 import org.knime.audio.data.AudioSamples;
 
-import jAudioFeatureExtractor.AudioFeatures.PeakFinder;
-
 /**
  *
- * @author Budi Yanto, KNIME.com
+ * @author Budi Yanto, Berlin, KNIME.com
  */
-public class PeakDetection extends FeatureExtractor {
+public class BeatSum extends FeatureExtractor {
 
-	private static final String PARAMETER_NAME = FeatureType.PEAK_DETECTION.getParameters()[0];
-	private static final int DEF_PARAMETER_VALUE = 10;
-
-	/**
-	 *
-	 */
-	public PeakDetection() {
-		super(FeatureType.PEAK_DETECTION, new double[]{DEF_PARAMETER_VALUE});
+	protected BeatSum() {
+		super(FeatureType.BEAT_SUM);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double[] extractFeature(final AudioSamples samples,
-			final double[][] additionalFeatureValues) throws Exception {
-		final PeakFinder peakFinder = new PeakFinder();
-		peakFinder.setPeakThreshold(getParameterValue(PARAMETER_NAME).intValue());
-		return peakFinder.extractFeature(samples.getSamplesMixedDownIntoOneChannel(),
-				samples.getAudioFormat().getSampleRate(), additionalFeatureValues);
+	public double[] extractFeature(final AudioSamples samples, final double[][] additionalFeatureValues)
+			throws Exception {
+		return new jAudioFeatureExtractor.AudioFeatures.BeatSum().extractFeature(
+				samples.getSamplesMixedDownIntoOneChannel(), samples.getAudioFormat().getSampleRate(),
+				additionalFeatureValues);
 	}
 
 	/**

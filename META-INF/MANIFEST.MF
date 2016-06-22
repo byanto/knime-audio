@@ -39,13 +39,14 @@ Bundle-ClassPath: knime-audio.jar,
  lib/jersey-2.22.2/lib/jersey-container-servlet.jar,
  lib/jersey-2.22.2/lib/jersey-entity-filtering-2.22.2.jar,
  lib/jersey-2.22.2/lib/jersey-media-jaxb.jar,
- lib/jersey-2.22.2/lib/jersey-server.jar
+ lib/jersey-2.22.2/lib/jersey-server.jar,
+ lib/jcommon-1.0.23.jar,
+ lib/jfreechart-1.0.19.jar
 Bundle-Vendor: KNIME GmbH, Berlin, Germany
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.11.0,4.0.0)",
  org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
  org.knime.base;bundle-version="[3.0.0,4.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
- org.knime.ext.jfreechart;bundle-version="3.2.0",
  org.apache.commons.math3;bundle-version="3.4.1"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.audio.data,
@@ -63,6 +64,7 @@ Export-Package: org.knime.audio.data,
  org.knime.audio.node.recognizer.bing,
  org.knime.audio.node.recognizer.cmusphinx,
  org.knime.audio.node.recognizer.ibmwatson,
+ org.knime.audio.node.recognizer.google,
  org.knime.audio.node.viewer,
  org.knime.audio.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

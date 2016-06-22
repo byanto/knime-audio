@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
@@ -290,26 +291,33 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 			final double[] buf = new double[chunkSize];
 			System.arraycopy(samples, chunkIndices.get(i), buf, 0, toRead);
 			final AudioSamples chunk = new AudioSamples(buf, wholeSamples.getAudioFormat());
-			for (final FeatureExtractor extractor : sortedExtractors) {
-				final FeatureType type = extractor.getType();
-				final FeatureType[] dependencies = type.getDependencies();
-				double[][] additionalValues = new double[dependencies.length][];
-				for (int j = 0; j < dependencies.length; j++) {
-					additionalValues[j] = result.get(dependencies[j]).get(i);
+			extractorLoop:
+				for (final FeatureExtractor extractor : sortedExtractors) {
+					final FeatureType type = extractor.getType();
+					final FeatureType[] dependencies = type.getDependencies();
+					final int[] offsets = type.getOffsets();
+					double[][] additionalValues = new double[dependencies.length][];
+					for (int j = 0; j < dependencies.length; j++) {
+						final int idx = i + offsets[j];
+						/* No enough previous inforamation to extract this feature. */
+						if (idx < 0) {
+							break extractorLoop;
+						}
+						additionalValues[j] = result.get(dependencies[j]).get(i + offsets[j]);
+					}
+					if (!type.hasDependencies()) {
+						additionalValues = null;
+					}
+					final double[] features = extractor.extractFeature(chunk, additionalValues);
+					List<double[]> list = result.get(type);
+					if (list == null) {
+						list = new ArrayList<double[]>();
+						list.add(features);
+						result.put(type, list);
+					} else {
+						list.add(features);
+					}
 				}
-				if (!type.hasDependencies()) {
-					additionalValues = null;
-				}
-				final double[] features = extractor.extractFeature(chunk, additionalValues);
-				List<double[]> list = result.get(type);
-				if (list == null) {
-					list = new ArrayList<double[]>();
-					list.add(features);
-					result.put(type, list);
-				} else {
-					list.add(features);
-				}
-			}
 		}
 
 		return result;
@@ -319,7 +327,21 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 			final List<double[]> featuresPerChunk) {
 		final Map<FeatureExtractor.Aggregator, double[]> result = new LinkedHashMap<FeatureExtractor.Aggregator, double[]>();
 		final double[][] features = featuresPerChunk.toArray(new double[featuresPerChunk.size()][]);
-		final RealMatrix rm = MatrixUtils.createRealMatrix(features);
+		RealMatrix rm = null;
+		try{
+			rm = MatrixUtils.createRealMatrix(features);
+		} catch(final DimensionMismatchException ex){
+			/* Handles features with different length */
+			final int maxDimension = findMaxDimension(featuresPerChunk);
+			final double[][] newFeatures = new double[featuresPerChunk.size()][maxDimension];
+			for(int i  = 0; i < featuresPerChunk.size(); i++){
+				final double[] val = featuresPerChunk.get(i);
+				newFeatures[i] = new double[maxDimension];
+				System.arraycopy(val, 0, newFeatures[i], 0, val.length);
+			}
+			rm = MatrixUtils.createRealMatrix(newFeatures);
+		}
+
 		for (final FeatureExtractor.Aggregator aggregator : m_aggregators) {
 			final double[] aggregationValues = new double[rm.getColumnDimension()];
 			for (int i = 0; i < aggregationValues.length; i++) {
@@ -345,6 +367,16 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 				}
 			}
 			result.put(aggregator, aggregationValues);
+		}
+		return result;
+	}
+
+	private int findMaxDimension(final List<double[]> featuresPerChunk){
+		int result = 0;
+		for(final double[] features : featuresPerChunk) {
+			if(result < features.length){
+				result = features.length;
+			}
 		}
 		return result;
 	}

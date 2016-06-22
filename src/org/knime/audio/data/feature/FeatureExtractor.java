@@ -151,14 +151,16 @@ public abstract class FeatureExtractor {
 			return new PowerSpectrum();
 		case MAGNITUDE_SPECTRUM:
 			return new MagnitudeSpectrum();
+		case FFT_BIN_FREQUENCY_LABELS:
+			return new FFTBinFrequencyLabels();
 		case MFCC:
 			return new MFCC();
 		case SPECTRAL_CENTROID:
 			return new SpectralCentroid();
-		case SPECTRAL_ROLLOFF_POINT:
-			return new SpectralRolloffPoint();
 		case COMPACTNESS:
 			return new Compactness();
+		case SPECTRAL_ROLLOFF_POINT:
+			return new SpectralRolloffPoint();
 		case ROOT_MEAN_SQUARE:
 			return new RootMeanSquare();
 		case ZERO_CROSSINGS:
@@ -171,6 +173,28 @@ public abstract class FeatureExtractor {
 			return new ConstantQ();
 		case CHROMA:
 			return new Chroma();
+		case SPECTRAL_FLUX:
+			return new SpectralFlux();
+		case SPECTRAL_VARIABILITY:
+			return new SpectralVariability();
+		case FRACTION_OF_LOW_ENERGY_WINDOWS:
+			return new FractionOfLowEnergyWindows();
+		case BEAT_HISTOGRAM:
+			return new BeatHistogram();
+		case BEAT_HISTOGRAM_BIN_LABELS:
+			return new BeatHistogramBinLabels();
+		case STRONGEST_BEAT:
+			return new StrongestBeat();
+		case BEAT_SUM:
+			return new BeatSum();
+		case STRENGTH_OF_STRONGEST_BEAT:
+			return new StrengthOfStrongestBeat();
+		case STRONGEST_FREQUENCY_VIA_ZERO_CROSSINGS:
+			return new StrongestFrequencyViaZeroCrossings();
+		case STRONGEST_FREQUENCY_VIA_SPECTRAL_CENTROID:
+			return new StrongestFrequencyViaSpectralCentroid();
+		case STRONGEST_FREQUENCY_VIA_FFT_MAXIMUM:
+			return new StrongestFrequencyViaFFTMax();
 		default:
 			throw new IllegalArgumentException("There isn't extractor defined "
 					+ "for the given feature type: " + type);

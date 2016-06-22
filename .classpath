@@ -37,5 +37,7 @@
 	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-entity-filtering-2.22.2.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-media-jaxb.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-2.22.2/lib/jersey-server.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

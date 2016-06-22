@@ -14,15 +14,15 @@
    </extension>
    
 	<extension point="org.knime.workbench.repository.nodes">
-		<node category-path="/audio/io" factory-class="org.knime.audio.node.reader.AudioReaderNodeFactory"/>
-   		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.dataextractor.DataExtractorNodeFactory"/>
-		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.featureextractor.FeatureExtractorNodeFactory"/>
-		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.mpeg7featureextractor.MPEG7FeatureExtractorNodeFactory"/>
-		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.bing.BingSpeechSRNodeFactory"/>
-		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.cmusphinx.CMUSphinxSRNodeFactory"/>
-		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.ibmwatson.IBMWatsonSRNodeFactory"/>
-		<node category-path="/audio/misc" factory-class="org.knime.audio.node.viewer.AudioViewerNodeFactory"/>
-	<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.google.GoogleSpeechNodeFactory" id="org.knime.audio.node.recognizer.google.GoogleSpeechNodeFactory"/>
+		<node category-path="/audio/io" factory-class="org.knime.audio.node.reader.AudioReaderNodeFactory" id="org.knime.audio.node.reader.AudioReaderNodeFactory" />
+   		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.dataextractor.DataExtractorNodeFactory" id="org.knime.audio.node.dataextractor.DataExtractorNodeFactory" />
+		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.featureextractor.FeatureExtractorNodeFactory" id="org.knime.audio.node.featureextractor.FeatureExtractorNodeFactory" />
+		<node category-path="/audio/preprocessing" factory-class="org.knime.audio.node.mpeg7featureextractor.MPEG7FeatureExtractorNodeFactory" id="org.knime.audio.node.mpeg7featureextractor.MPEG7FeatureExtractorNodeFactory" />
+		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.bing.BingSpeechSRNodeFactory" id="org.knime.audio.node.recognizer.bing.BingSpeechSRNodeFactory" />
+		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.cmusphinx.CMUSphinxSRNodeFactory" id="org.knime.audio.node.recognizer.cmusphinx.CMUSphinxSRNodeFactory" />
+		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.ibmwatson.IBMWatsonSRNodeFactory" id="org.knime.audio.node.recognizer.ibmwatson.IBMWatsonSRNodeFactory"/>
+		<node category-path="/audio/recognizer" factory-class="org.knime.audio.node.recognizer.google.GoogleSpeechNodeFactory" id="org.knime.audio.node.recognizer.google.GoogleSpeechNodeFactory"/>
+		<node category-path="/audio/misc" factory-class="org.knime.audio.node.viewer.AudioViewerNodeFactory" id="org.knime.audio.node.viewer.AudioViewerNodeFactory" />
 </extension>
  <extension
        point="org.knime.core.DataType">
