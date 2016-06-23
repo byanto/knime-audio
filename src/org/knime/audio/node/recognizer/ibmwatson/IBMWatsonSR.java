@@ -48,7 +48,6 @@
  */
 package org.knime.audio.node.recognizer.ibmwatson;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,77 +66,77 @@ import com.ibm.watson.developer_cloud.speech_to_text.v1.model.Transcript;
  * @author Budi Yanto, KNIME.com
  */
 public class IBMWatsonSR implements Recognizer{
-	
+
 	private static final String END_POINT = "https://stream.watsonplatform.net/speech-to-text/api";
-    private String m_userName = "";
-    private String m_password = "";
+	private String m_userName = "";
+	private String m_password = "";
 
-    /**
-     * @return the userName
-     */
-    public String getUserName() {
-        return m_userName;
-    }
+	/**
+	 * @return the userName
+	 */
+	public String getUserName() {
+		return m_userName;
+	}
 
-    /**
-     * @param userName the userName to set
-     */
-    public void setUserName(final String userName) {
-        m_userName = userName;
-    }
+	/**
+	 * @param userName the userName to set
+	 */
+	public void setUserName(final String userName) {
+		m_userName = userName;
+	}
 
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-        return m_password;
-    }
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return m_password;
+	}
 
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(final String password) {
-        m_password = password;
-    }
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(final String password) {
+		m_password = password;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RecognitionResult recognize(final Audio audio) {
-        if(StringUtils.isBlank(m_userName) || StringUtils.isBlank(m_password)){
-            throw new IllegalArgumentException("Username and password cannot be empty.");
-        }
-        final SpeechToText service = new SpeechToText();
-        service.setUsernameAndPassword(m_userName, m_password);
-        service.setEndPoint(END_POINT);
-        final RecognizeOptions options = new RecognizeOptions().continuous(true);
-        final SpeechResults results = service.recognize(audio.getFile(), options);
-        final StringBuilder builder = new StringBuilder();
-        final int totalResults = results.getResults().size();
-        double confidence = 0.0;
-        for(final Transcript transcript : results.getResults()) {
-        	final List<SpeechAlternative> alternatives = transcript.getAlternatives();
-        	final SpeechAlternative alt = alternatives.get(0);
-        	builder.append(alt.getTranscript());
-        	confidence += alt.getConfidence();
-        }
-        
-        confidence /= totalResults;
-        
-//        final SpeechAlternative alternative = results.getResults().get(0)
-//                .getAlternatives().get(0);
-//        final String transcript = alternative.getTranscript();
-//        final double confidence = alternative.getConfidence();        
-        return new RecognitionResult(getName(), builder.toString(), confidence);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RecognitionResult recognize(final Audio audio) {
+		if(StringUtils.isBlank(m_userName) || StringUtils.isBlank(m_password)){
+			throw new IllegalArgumentException("Username and password cannot be empty.");
+		}
+		final SpeechToText service = new SpeechToText();
+		service.setUsernameAndPassword(m_userName, m_password);
+		service.setEndPoint(END_POINT);
+		final RecognizeOptions options = new RecognizeOptions().continuous(true);
+		final SpeechResults results = service.recognize(audio.getFile(), options);
+		final StringBuilder builder = new StringBuilder();
+		final int totalResults = results.getResults().size();
+		double confidence = 0.0;
+		for(final Transcript transcript : results.getResults()) {
+			final List<SpeechAlternative> alternatives = transcript.getAlternatives();
+			final SpeechAlternative alt = alternatives.get(0);
+			builder.append(alt.getTranscript());
+			confidence += alt.getConfidence();
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "IBM Watson Speech To Text";
-    }
+		confidence /= totalResults;
+
+		//        final SpeechAlternative alternative = results.getResults().get(0)
+		//                .getAlternatives().get(0);
+		//        final String transcript = alternative.getTranscript();
+		//        final double confidence = alternative.getConfidence();
+		return new RecognitionResult(getName(), builder.toString(), confidence);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		return "IBM Watson Speech Recognizer";
+	}
 
 }

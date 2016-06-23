@@ -8,9 +8,12 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -260,7 +263,8 @@ public class FeatureExtractorNodeDialog extends DefaultNodeSettingsPane {
 		builder.append("<h4>Dependencies</h4>");
 		if (type.hasDependencies()) {
 			builder.append("<ul>");
-			for (final FeatureType dep : type.getDependencies()) {
+			final Set<FeatureType> dependencies = new LinkedHashSet<FeatureType>(Arrays.asList(type.getDependencies()));
+			for (final FeatureType dep : dependencies) {
 				builder.append("<li>" + dep.getName() + "</li>");
 			}
 		} else {

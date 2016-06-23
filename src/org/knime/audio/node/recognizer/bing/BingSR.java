@@ -77,318 +77,318 @@ import org.knime.core.node.NodeLogger;
  */
 public class BingSR implements Recognizer {
 
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(BingSR.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(BingSR.class);
 
-    /** Default language of the audio file to recognize */
-    static final String DEFAULT_LANGUAGE = "en-US";
+	/** Default language of the audio file to recognize */
+	static final String DEFAULT_LANGUAGE = "en-US";
 
-    /** Default scenario used for the recognition */
-    static final String DEFAULT_SCENARIO = "ulm";
+	/** Default scenario used for the recognition */
+	static final String DEFAULT_SCENARIO = "ulm";
 
-    /** Default maxnbest */
-    static final int DEFAULT_MAXNBEST = 1;
+	/** Default maxnbest */
+	static final int DEFAULT_MAXNBEST = 1;
 
-    /** Default profanity markup */
-    static final int DEFAULT_PROFANITY_MARKUP = 1;
+	/** Default profanity markup */
+	static final int DEFAULT_PROFANITY_MARKUP = 1;
 
-    // Data needed for authentication to get the access token from Microsoft
-    private static final String ACCESS_URI = "https://oxford-speech.cloudapp.net/token/issueToken";
+	// Data needed for authentication to get the access token from Microsoft
+	private static final String ACCESS_URI = "https://oxford-speech.cloudapp.net/token/issueToken";
 
-    private static final String GRANT_TYPE = "client_credentials";
+	private static final String GRANT_TYPE = "client_credentials";
 
-    private static final String CLIENT_ID = "microsoft-cognitive-service-speechapi";
+	private static final String CLIENT_ID = "microsoft-cognitive-service-speechapi";
 
-    private static final String SCOPE = "https://speech.platform.bing.com";
+	private static final String SCOPE = "https://speech.platform.bing.com";
 
-    // Data needed for recognition
-    private static final String HOST = "https://speech.platform.bing.com/recognize/query";
+	// Data needed for recognition
+	private static final String HOST = "https://speech.platform.bing.com/recognize/query";
 
-    private static final String VERSION = "3.0";
+	private static final String VERSION = "3.0";
 
-    private static final String APP_ID = "D4D52672-91D7-4C74-8AD8-42B1D98141A5";
+	private static final String APP_ID = "D4D52672-91D7-4C74-8AD8-42B1D98141A5";
 
-    private static final String FORMAT = "json";
+	private static final String FORMAT = "json";
 
-    private static final String DEVICE_OS = "Linux";
+	private static final String DEVICE_OS = "Linux";
 
-    private final String INSTANCE_ID = UUID.randomUUID().toString();
+	private final String INSTANCE_ID = UUID.randomUUID().toString();
 
-    private String m_subscriptionKey;
+	private String m_subscriptionKey;
 
-    private String m_language;
+	private String m_language;
 
-    private String m_scenario;
+	private String m_scenario;
 
-    private int m_maxNBest;
+	private int m_maxNBest;
 
-    private int m_profanityMarkup;
+	private int m_profanityMarkup;
 
-    private AccessTokenInfo m_accessToken = null;
+	private AccessTokenInfo m_accessToken = null;
 
-    /**
-    *
-    */
-    public BingSR() {
-        this(null, DEFAULT_LANGUAGE, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
-    }
+	/**
+	 *
+	 */
+	public BingSR() {
+		this(null, DEFAULT_LANGUAGE, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
+	}
 
-    /**
-     *
-     * @param subscriptionKey
-     */
-    public BingSR(final String subscriptionKey) {
-        this(subscriptionKey, DEFAULT_LANGUAGE, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
-    }
+	/**
+	 *
+	 * @param subscriptionKey
+	 */
+	public BingSR(final String subscriptionKey) {
+		this(subscriptionKey, DEFAULT_LANGUAGE, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
+	}
 
-    /**
-     *
-     * @param subscriptionKey
-     * @param language
-     */
-    public BingSR(final String subscriptionKey, final String language) {
-        this(subscriptionKey, language, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
-    }
+	/**
+	 *
+	 * @param subscriptionKey
+	 * @param language
+	 */
+	public BingSR(final String subscriptionKey, final String language) {
+		this(subscriptionKey, language, DEFAULT_SCENARIO, DEFAULT_MAXNBEST, DEFAULT_PROFANITY_MARKUP);
+	}
 
-    /**
-     *
-     * @param subscriptionKey
-     * @param language
-     * @param maxNBest
-     */
-    public BingSR(final String subscriptionKey, final String language, final int maxNBest) {
-        this(subscriptionKey, language, DEFAULT_SCENARIO, maxNBest, DEFAULT_PROFANITY_MARKUP);
-    }
+	/**
+	 *
+	 * @param subscriptionKey
+	 * @param language
+	 * @param maxNBest
+	 */
+	public BingSR(final String subscriptionKey, final String language, final int maxNBest) {
+		this(subscriptionKey, language, DEFAULT_SCENARIO, maxNBest, DEFAULT_PROFANITY_MARKUP);
+	}
 
-    /**
-     *
-     * @param subscriptionKey
-     * @param language
-     * @param maxNBest
-     * @param profanityMarkup
-     */
-    public BingSR(final String subscriptionKey, final String language, final int maxNBest,
-        final int profanityMarkup) {
-        this(subscriptionKey, language, DEFAULT_SCENARIO, maxNBest, profanityMarkup);
-    }
+	/**
+	 *
+	 * @param subscriptionKey
+	 * @param language
+	 * @param maxNBest
+	 * @param profanityMarkup
+	 */
+	public BingSR(final String subscriptionKey, final String language, final int maxNBest,
+			final int profanityMarkup) {
+		this(subscriptionKey, language, DEFAULT_SCENARIO, maxNBest, profanityMarkup);
+	}
 
-    /**
-     *
-     * @param subscriptionKey
-     * @param language
-     * @param scenario
-     * @param maxNBest
-     * @param profanityMarkup
-     */
-    public BingSR(final String subscriptionKey, final String language, final String scenario,
-        final int maxNBest, final int profanityMarkup) {
-        m_subscriptionKey = subscriptionKey;
-        m_language = language;
-        m_scenario = scenario;
-        m_maxNBest = maxNBest;
-        m_profanityMarkup = profanityMarkup;
-    }
+	/**
+	 *
+	 * @param subscriptionKey
+	 * @param language
+	 * @param scenario
+	 * @param maxNBest
+	 * @param profanityMarkup
+	 */
+	public BingSR(final String subscriptionKey, final String language, final String scenario,
+			final int maxNBest, final int profanityMarkup) {
+		m_subscriptionKey = subscriptionKey;
+		m_language = language;
+		m_scenario = scenario;
+		m_maxNBest = maxNBest;
+		m_profanityMarkup = profanityMarkup;
+	}
 
-    /**
-     * @return the subscriptionKey
-     */
-    public String getSubscriptionKey() {
-        return m_subscriptionKey;
-    }
+	/**
+	 * @return the subscriptionKey
+	 */
+	public String getSubscriptionKey() {
+		return m_subscriptionKey;
+	}
 
-    /**
-     * @param subscriptionKey the subscriptionKey to set
-     */
-    public void setSubscriptionKey(final String subscriptionKey) {
-        m_subscriptionKey = subscriptionKey;
-    }
+	/**
+	 * @param subscriptionKey the subscriptionKey to set
+	 */
+	public void setSubscriptionKey(final String subscriptionKey) {
+		m_subscriptionKey = subscriptionKey;
+	}
 
-    /**
-     * @return <code>true</code> if the subscription key isn't empty, otherwise <code>false</code>
-     */
-    public boolean hasSubscriptionKey() {
-        return !StringUtils.isBlank(m_subscriptionKey);
-    }
+	/**
+	 * @return <code>true</code> if the subscription key isn't empty, otherwise <code>false</code>
+	 */
+	public boolean hasSubscriptionKey() {
+		return !StringUtils.isBlank(m_subscriptionKey);
+	}
 
-    /**
-     * @return the language
-     */
-    public String getLanguage() {
-        return m_language;
-    }
+	/**
+	 * @return the language
+	 */
+	public String getLanguage() {
+		return m_language;
+	}
 
-    /**
-     * @param language the language to set
-     */
-    public void setLanguage(final String language) {
-        m_language = language;
-    }
+	/**
+	 * @param language the language to set
+	 */
+	public void setLanguage(final String language) {
+		m_language = language;
+	}
 
-    /**
-     * @return the scenario
-     */
-    public String getScenario(){
-        return m_scenario;
-    }
+	/**
+	 * @return the scenario
+	 */
+	public String getScenario(){
+		return m_scenario;
+	}
 
-    /**
-     * @param scenario the scenario to set
-     */
-    public void setScenario(final String scenario) {
-        m_scenario = scenario;
-    }
+	/**
+	 * @param scenario the scenario to set
+	 */
+	public void setScenario(final String scenario) {
+		m_scenario = scenario;
+	}
 
-    /**
-     * @return the maxNBest
-     */
-    public int getMaxNBest() {
-        return m_maxNBest;
-    }
+	/**
+	 * @return the maxNBest
+	 */
+	public int getMaxNBest() {
+		return m_maxNBest;
+	}
 
-    /**
-     * @param maxNBest the maxNBest to set
-     */
-    public void setMaxNBest(final int maxNBest) {
-        m_maxNBest = maxNBest;
-    }
+	/**
+	 * @param maxNBest the maxNBest to set
+	 */
+	public void setMaxNBest(final int maxNBest) {
+		m_maxNBest = maxNBest;
+	}
 
-    /**
-     * @return the profanityMarkup
-     */
-    public int getProfanityMarkup() {
-        return m_profanityMarkup;
-    }
+	/**
+	 * @return the profanityMarkup
+	 */
+	public int getProfanityMarkup() {
+		return m_profanityMarkup;
+	}
 
-    /**
-     * @param profanityMarkup the profanityMarkup to set
-     */
-    public void setProfanityMarkup(final int profanityMarkup) {
-        m_profanityMarkup = profanityMarkup;
-    }
+	/**
+	 * @param profanityMarkup the profanityMarkup to set
+	 */
+	public void setProfanityMarkup(final int profanityMarkup) {
+		m_profanityMarkup = profanityMarkup;
+	}
 
-    private boolean authenticate(){
-        if(m_accessToken == null || m_accessToken.isExpired()){
-            final Form form = new Form();
-            form.param("grant_type", GRANT_TYPE);
-            form.param("client_id", CLIENT_ID);
-            form.param("client_secret", m_subscriptionKey);
-            form.param("scope", SCOPE);
+	private boolean authenticate(){
+		if((m_accessToken == null) || m_accessToken.isExpired()){
+			final Form form = new Form();
+			form.param("grant_type", GRANT_TYPE);
+			form.param("client_id", CLIENT_ID);
+			form.param("client_secret", m_subscriptionKey);
+			form.param("scope", SCOPE);
 
-            final Client client = ClientBuilder.newBuilder()
-                    .register(JacksonFeature.class)
-                    .build();
-//            client.register(new LoggingFilter());
-            LOGGER.info("Retrieve access token from Microsoft.");
-            LOGGER.info("Access URI: " + ACCESS_URI);
-            final Response response = client.target(ACCESS_URI)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-            if(response.getStatusInfo().getFamily() == Family.SUCCESSFUL){
-                LOGGER.info("Successfully retrieved access token");
-                m_accessToken = response.readEntity(AccessTokenInfo.class);
-                return true;
-            }else{
-                LOGGER.error("Cannot retrieved access token - Status " + response.getStatus());
-                LOGGER.error("Info: " + response.getStatusInfo());
-                m_accessToken = null;
-            }
-        }
+			final Client client = ClientBuilder.newBuilder()
+					.register(JacksonFeature.class)
+					.build();
+			//            client.register(new LoggingFilter());
+			LOGGER.info("Retrieve access token from Microsoft.");
+			LOGGER.info("Access URI: " + ACCESS_URI);
+			final Response response = client.target(ACCESS_URI)
+					.request(MediaType.APPLICATION_JSON_TYPE)
+					.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+			if(response.getStatusInfo().getFamily() == Family.SUCCESSFUL){
+				LOGGER.info("Successfully retrieved access token");
+				m_accessToken = response.readEntity(AccessTokenInfo.class);
+				return true;
+			}else{
+				LOGGER.error("Cannot retrieved access token - Status " + response.getStatus());
+				LOGGER.error("Info: " + response.getStatusInfo());
+				m_accessToken = null;
+			}
+		}
 
-        if(!m_accessToken.isExpired()){
-            return true;
-        }
+		if(!m_accessToken.isExpired()){
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 
-    /**
-     * @return all supported languages of the recognizer in UTF-8 format
-     */
-    public static String[] getSupportedLanguages() {
-        return new String[]{
-            "de-DE", "es-ES", "en-GB", "en-US", "fr-FR", "it-IT", "zh-CN",
-            "zh-TW", "ja-JP", "en-IN", "pt-BR", "ko-KR", "fr-CA", "en-AU",
-            "zh-HK", "ar-EG", "fi-FI", "pt-PT", "en-NZ", "pl-PL", "en-CA",
-            "ru-RU", "da-DK", "nl-NL", "ca-ES", "nb-NO", "es-MX", "sv-SE"
-        };
-    }
+	/**
+	 * @return all supported languages of the recognizer in UTF-8 format
+	 */
+	public static String[] getSupportedLanguages() {
+		return new String[]{
+				"de-DE", "es-ES", "en-GB", "en-US", "fr-FR", "it-IT", "zh-CN",
+				"zh-TW", "ja-JP", "en-IN", "pt-BR", "ko-KR", "fr-CA", "en-AU",
+				"zh-HK", "ar-EG", "fi-FI", "pt-PT", "en-NZ", "pl-PL", "en-CA",
+				"ru-RU", "da-DK", "nl-NL", "ca-ES", "nb-NO", "es-MX", "sv-SE"
+		};
+	}
 
-    /**
-     * @return all supported scenarios of the recognizer
-     */
-    public static String[] getSupportedScenarios() {
-        return new String[]{
-            "ulm", "websearch"};
-    }
+	/**
+	 * @return all supported scenarios of the recognizer
+	 */
+	public static String[] getSupportedScenarios() {
+		return new String[]{
+				"ulm", "websearch"};
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "Microsoft Bing Speech";
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		return "Bing Speech Recognizer";
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RecognitionResult recognize(final Audio audio) {
-        if(m_subscriptionKey == null || m_subscriptionKey.isEmpty()){
-            throw new NullPointerException("Subscription key must be set.");
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RecognitionResult recognize(final Audio audio) {
+		if((m_subscriptionKey == null) || m_subscriptionKey.isEmpty()){
+			throw new NullPointerException("Subscription key must be set.");
+		}
 
-        RecognitionResult result = null;
+		RecognitionResult result = null;
 
-        if(authenticate()){
-            // Start recognition
-            final String authToken = "Bearer " + m_accessToken.getAccess_token();
-            final String requestId = UUID.randomUUID().toString();
+		if(authenticate()){
+			// Start recognition
+			final String authToken = "Bearer " + m_accessToken.getAccess_token();
+			final String requestId = UUID.randomUUID().toString();
 
-            final Client client = ClientBuilder.newClient();
-//            client.register(new LoggingFilter());
+			final Client client = ClientBuilder.newClient();
+			//            client.register(new LoggingFilter());
 
-            final String endPoint = UriBuilder.fromPath(HOST)
-                    .queryParam("scenarios", m_scenario)
-                    .queryParam("appid", APP_ID)
-                    .queryParam("locale", m_language)
-                    .queryParam("device.os", DEVICE_OS)
-                    .queryParam("version", VERSION)
-                    .queryParam("format", FORMAT)
-                    .queryParam("instanceid", INSTANCE_ID)
-                    .queryParam("requestid", requestId)
-                    .queryParam("maxnbest", m_maxNBest)
-                    .queryParam("result.profanitymarkup", m_profanityMarkup)
-                    .toString();
+			final String endPoint = UriBuilder.fromPath(HOST)
+					.queryParam("scenarios", m_scenario)
+					.queryParam("appid", APP_ID)
+					.queryParam("locale", m_language)
+					.queryParam("device.os", DEVICE_OS)
+					.queryParam("version", VERSION)
+					.queryParam("format", FORMAT)
+					.queryParam("instanceid", INSTANCE_ID)
+					.queryParam("requestid", requestId)
+					.queryParam("maxnbest", m_maxNBest)
+					.queryParam("result.profanitymarkup", m_profanityMarkup)
+					.toString();
 
-            LOGGER.info("Start recognition using Microsoft Congitive Service - Speech API");
-            LOGGER.info("End-Point: " + endPoint);
+			LOGGER.info("Start recognition using Microsoft Congitive Service - Speech API");
+			LOGGER.info("End-Point: " + endPoint);
 
-            final Invocation.Builder builder = client.target(endPoint).request();
-            builder.header(HttpHeaders.AUTHORIZATION, authToken);
+			final Invocation.Builder builder = client.target(endPoint).request();
+			builder.header(HttpHeaders.AUTHORIZATION, authToken);
 
-            InputStream stream = null;
-            try{
-                stream = new FileInputStream(audio.getFile());
-            } catch(FileNotFoundException ex){
-                LOGGER.error(ex);
-            }
+			InputStream stream = null;
+			try{
+				stream = new FileInputStream(audio.getFile());
+			} catch(final FileNotFoundException ex){
+				LOGGER.error(ex);
+			}
 
-            Response response = builder.post(Entity.entity(stream, "audio/wav; samplerate=16000"));
+			final Response response = builder.post(Entity.entity(stream, "audio/wav; samplerate=16000"));
 
-            if(response.getStatusInfo().getFamily() == Family.SUCCESSFUL){
-                LOGGER.info("Successfully recognized audio file.");
-                final BingRecognitionResponse responseResult = response.readEntity(
-                    BingRecognitionResponse.class);
-                Result res = responseResult.getResults().get(0);
-                result = new RecognitionResult(getName(), res.getLexical(), res.getConfidence());
-            }else{
-                LOGGER.error("Cannot recognized audio file - Status " + response.getStatus());
-                LOGGER.error("Info: " + response.getStatusInfo());
-            }
-        }
+			if(response.getStatusInfo().getFamily() == Family.SUCCESSFUL){
+				LOGGER.info("Successfully recognized audio file.");
+				final BingRecognitionResponse responseResult = response.readEntity(
+						BingRecognitionResponse.class);
+				final Result res = responseResult.getResults().get(0);
+				result = new RecognitionResult(getName(), res.getLexical(), res.getConfidence());
+			}else{
+				LOGGER.error("Cannot recognized audio file - Status " + response.getStatus());
+				LOGGER.error("Info: " + response.getStatusInfo());
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 }

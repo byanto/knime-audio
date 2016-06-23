@@ -64,81 +64,87 @@ import org.knime.core.data.ExtensibleUtilityFactory;
  */
 public interface AudioValue extends DataValue {
 
-    /**
-     * @return the underlying <code>Audio</code> instance
-     */
-    Audio getAudio();
+	/**
+	 * @return the underlying <code>Audio</code> instance
+	 */
+	Audio getAudio();
 
-    /**
-     * Returns whether the two audio values have the same content.
-     *
-     * @param val1 the first audio value
-     * @param val2 the second audio value
-     * @return <code>true</code> if both values are equal, <code>false</code> otherwise
-     */
-    static boolean equalContent(final AudioValue val1, final AudioValue val2){
-        return Objects.equals(val1.getAudio(), val2.getAudio());
-    }
+	/**
+	 * Meta information to this value type.
+	 *
+	 * @see DataValue#UTILITY
+	 */
+	UtilityFactory UTILITY = new AudioUtilityFactory();
 
-    /**
-     * Returns a hash code for the given audio value.
-     *
-     * @param val an audio value
-     * @return the hash code
-     */
-    static int hashCode(final AudioValue val){
-        return Objects.hashCode(val.getAudio());
-    }
+	/**
+	 * Returns whether the two audio values have the same content.
+	 *
+	 * @param val1 the first audio value
+	 * @param val2 the second audio value
+	 * @return <code>true</code> if both values are equal, <code>false</code> otherwise
+	 */
+	static boolean equalContent(final AudioValue val1, final AudioValue val2){
+		return Objects.equals(val1.getAudio(), val2.getAudio());
+	}
 
-    class AudioUtilityFactory extends ExtensibleUtilityFactory{
+	/**
+	 * Returns a hash code for the given audio value.
+	 *
+	 * @param val an audio value
+	 * @return the hash code
+	 */
+	static int hashCode(final AudioValue val){
+		return Objects.hashCode(val.getAudio());
+	}
 
-        /** Singleton icon to be used to display this cell type. */
-        private static final Icon ICON;
+	class AudioUtilityFactory extends ExtensibleUtilityFactory{
 
-        /** Load icon, use <code>null</code> if not available. */
-        static {
-            ImageIcon icon;
-            try {
-                ClassLoader loader = AudioValue.class.getClassLoader();
-                icon = new ImageIcon(loader.getResource("icon/AudioValue.png"));
-            } catch (Exception e) {
-                icon = null;
-            }
-            ICON = icon;
-        }
+		/** Singleton icon to be used to display this cell type. */
+		private static final Icon ICON;
 
-        private static AudioValueComparator AUDIO_COMPARATOR = new AudioValueComparator();
+		/** Load icon, use <code>null</code> if not available. */
+		static {
+			ImageIcon icon;
+			try {
+				icon = new ImageIcon(AudioValue.class.getResource("icon/AudioValue.png"));
+			} catch (final Exception e) {
+				icon = null;
+			}
+			ICON = icon;
+		}
 
-        /**
-         * Only subclasses are allowed to instantiate this class
-         */
-        protected AudioUtilityFactory(){
-            super(AudioValue.class);
-        }
+		private static AudioValueComparator AUDIO_COMPARATOR = new AudioValueComparator();
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Icon getIcon() {
-            return ICON;
-        }
+		/**
+		 * Only subclasses are allowed to instantiate this class
+		 */
+		protected AudioUtilityFactory(){
+			super(AudioValue.class);
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected DataValueComparator getComparator() {
-            return AUDIO_COMPARATOR;
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Icon getIcon() {
+			return ICON;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getName() {
-            return "Audio File";
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected DataValueComparator getComparator() {
+			return AUDIO_COMPARATOR;
+		}
 
-    }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getName() {
+			return "Audio File";
+		}
+
+	}
 }

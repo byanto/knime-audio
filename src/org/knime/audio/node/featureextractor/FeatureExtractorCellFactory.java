@@ -55,9 +55,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
@@ -297,26 +299,38 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 					final FeatureType[] dependencies = type.getDependencies();
 					final int[] offsets = type.getOffsets();
 					double[][] additionalValues = new double[dependencies.length][];
+					List<double[]> list = result.get(type);
+					if (list == null) {
+						list = new ArrayList<double[]>();
+						result.put(type, list);
+					}
+
 					for (int j = 0; j < dependencies.length; j++) {
 						final int idx = i + offsets[j];
 						/* No enough previous inforamation to extract this feature. */
-						if (idx < 0) {
-							break extractorLoop;
+						if ((idx < 0) || !result.containsKey(dependencies[j]) || (result.get(dependencies[j]) == null)) {
+							list.add(null);
+							continue extractorLoop;
 						}
-						additionalValues[j] = result.get(dependencies[j]).get(i + offsets[j]);
+						if(result.containsKey(dependencies[j])){
+							additionalValues[j] = result.get(dependencies[j]).get(idx);
+						} else {
+							continue extractorLoop;
+						}
 					}
 					if (!type.hasDependencies()) {
 						additionalValues = null;
 					}
 					final double[] features = extractor.extractFeature(chunk, additionalValues);
-					List<double[]> list = result.get(type);
-					if (list == null) {
-						list = new ArrayList<double[]>();
-						list.add(features);
-						result.put(type, list);
-					} else {
-						list.add(features);
-					}
+					list.add(features);
+					//					List<double[]> list = result.get(type);
+					//					if (list == null) {
+					//						list = new ArrayList<double[]>();
+					//						list.add(features);
+					//						result.put(type, list);
+					//					} else {
+					//						list.add(features);
+					//					}
 				}
 		}
 
@@ -325,11 +339,15 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 
 	private Map<FeatureExtractor.Aggregator, double[]> aggregateFeatures(
 			final List<double[]> featuresPerChunk) {
-		final Map<FeatureExtractor.Aggregator, double[]> result = new LinkedHashMap<FeatureExtractor.Aggregator, double[]>();
-		final double[][] features = featuresPerChunk.toArray(new double[featuresPerChunk.size()][]);
+
+		/* No feature is available, just return null for all aggregators */
+		if((featuresPerChunk == null) || featuresPerChunk.isEmpty()){
+			return getNullAggregatorMap(m_aggregators);
+		}
+
 		RealMatrix rm = null;
 		try{
-			rm = MatrixUtils.createRealMatrix(features);
+			rm = MatrixUtils.createRealMatrix(featuresPerChunk.toArray(new double[featuresPerChunk.size()][]));
 		} catch(final DimensionMismatchException ex){
 			/* Handles features with different length */
 			final int maxDimension = findMaxDimension(featuresPerChunk);
@@ -340,8 +358,15 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 				System.arraycopy(val, 0, newFeatures[i], 0, val.length);
 			}
 			rm = MatrixUtils.createRealMatrix(newFeatures);
+		} catch(final NullArgumentException ex){
+			featuresPerChunk.removeIf(Objects::isNull);
+			if(featuresPerChunk.isEmpty()){
+				return getNullAggregatorMap(m_aggregators);
+			}
+			rm = MatrixUtils.createRealMatrix(featuresPerChunk.toArray(new double[featuresPerChunk.size()][]));
 		}
 
+		final Map<FeatureExtractor.Aggregator, double[]> result = new LinkedHashMap<FeatureExtractor.Aggregator, double[]>();
 		for (final FeatureExtractor.Aggregator aggregator : m_aggregators) {
 			final double[] aggregationValues = new double[rm.getColumnDimension()];
 			for (int i = 0; i < aggregationValues.length; i++) {
@@ -377,6 +402,14 @@ class FeatureExtractorCellFactory extends AbstractCellFactory {
 			if(result < features.length){
 				result = features.length;
 			}
+		}
+		return result;
+	}
+
+	private Map<FeatureExtractor.Aggregator, double[]> getNullAggregatorMap(final FeatureExtractor.Aggregator[] aggregators){
+		final Map<FeatureExtractor.Aggregator, double[]> result = new LinkedHashMap<FeatureExtractor.Aggregator, double[]>();
+		for(final FeatureExtractor.Aggregator aggregator : aggregators){
+			result.put(aggregator, null);
 		}
 		return result;
 	}

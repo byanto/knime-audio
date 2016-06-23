@@ -67,112 +67,113 @@ import org.knime.core.data.StringValue;
  */
 public class AudioCell extends DataCell implements AudioValue, StringValue{
 
-    /**
-     * Serializer for <code>AudioCell</code>s.
-     * @noreference This class is not intended to be referenced by clients.
-     */
-    public static final class AudioSerializer implements DataCellSerializer<AudioCell> {
+	/**
+	 * Serializer for <code>AudioCell</code>s.
+	 * @noreference This class is not intended to be referenced by clients.
+	 */
+	public static final class AudioSerializer implements DataCellSerializer<AudioCell> {
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void serialize(final AudioCell cell, final DataCellDataOutput output) throws IOException {
-            AudioBuilder.serialize(cell.getAudio(), output);
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void serialize(final AudioCell cell, final DataCellDataOutput output) throws IOException {
+			AudioBuilder.serialize(cell.getAudio(), output);
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public AudioCell deserialize(final DataCellDataInput input) throws IOException {
-            try {
-                final Audio audio = AudioBuilder.deserialize(input);
-                return new AudioCell(audio);
-            } catch (UnsupportedAudioFileException ex) {
-                throw new IOException(ex);
-            }
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public AudioCell deserialize(final DataCellDataInput input) throws IOException {
+			try {
+				final Audio audio = AudioBuilder.deserialize(input);
+				return new AudioCell(audio);
+			} catch (final UnsupportedAudioFileException ex) {
+				throw new IOException(ex);
+			}
+		}
 
-    }
+	}
 
-    /**
-     * Automatically generated Version UID
-     */
-    private static final long serialVersionUID = 3098973491962802951L;
+	/**
+	 * Automatically generated Version UID
+	 */
+	private static final long serialVersionUID = 3098973491962802951L;
 
-    /**
-     * Convenience access member for
-     * <code>DataType.getType(AudioCell.class)</code>.
-     *
-     * @see DataType#getType(Class)
-     */
-    public static final DataType TYPE = DataType.getType(AudioCell.class);
+	/**
+	 * Convenience access member for
+	 * <code>DataType.getType(AudioCell.class)</code>.
+	 *
+	 * @see DataType#getType(Class)
+	 */
+	public static final DataType TYPE = DataType.getType(AudioCell.class);
 
-    private final Audio m_audio;
+	private final Audio m_audio;
 
-    /**
-     * Prevent to directly create a new audio cell instance.
-     * A new audio cell should only be created using {@link AudioCellFactory}.
-     */
-    AudioCell(final Audio audio){
-        if(audio == null){
-            throw new IllegalArgumentException("Audio cannot be null.");
-        }
-        m_audio = audio;
-    }
+	/**
+	 * Prevent to directly create a new audio cell instance.
+	 * A new audio cell should only be created using {@link AudioCellFactory}.
+	 */
+	AudioCell(final Audio audio){
+		if(audio == null){
+			throw new IllegalArgumentException("Audio cannot be null.");
+		}
+		m_audio = audio;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringValue() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Audio[\npath=");
-        builder.append(m_audio.getFile().getAbsolutePath());
-        builder.append("\n]");
-        return builder.toString();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getStringValue() {
+		return m_audio.getName();
+		//        StringBuilder builder = new StringBuilder();
+		//        builder.append("Audio[\npath=");
+		//        builder.append(m_audio.getFile().getAbsolutePath());
+		//        builder.append("\n]");
+		//        return builder.toString();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Audio getAudio() {
-        return m_audio;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Audio getAudio() {
+		return m_audio;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return getStringValue();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return getStringValue();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean equalsDataCell(final DataCell dc) {
-        if(dc == null){
-            return false;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean equalsDataCell(final DataCell dc) {
+		if(dc == null){
+			return false;
+		}
 
-        AudioCell cell = (AudioCell) dc;
-        if(!cell.getAudio().equals(m_audio)){
-            return false;
-        }
+		final AudioCell cell = (AudioCell) dc;
+		if(!cell.getAudio().equals(m_audio)){
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return AudioValue.hashCode(this);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return AudioValue.hashCode(this);
+	}
 
 }

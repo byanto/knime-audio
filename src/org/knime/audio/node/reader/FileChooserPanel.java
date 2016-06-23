@@ -109,12 +109,12 @@ import org.knime.core.node.NodeLogger;
  */
 public class FileChooserPanel extends JPanel {
 
-    private static NodeLogger LOGGER = NodeLogger.getLogger(FileChooserPanel.class);
+	private static NodeLogger LOGGER = NodeLogger.getLogger(FileChooserPanel.class);
 
-    private static String BUTTON_OK = "icon/button_ok.png";
-    private static String EDIT_ADD = "icon/edit_add.png";
-    private static String EDIT_DELETE = "icon/edit_delete.png";
-    private static String EDIT_REMOVE = "icon/edit_remove.png";
+	private static String BUTTON_OK = "icon/button_ok.png";
+	private static String EDIT_ADD = "icon/edit_add.png";
+	private static String EDIT_DELETE = "icon/edit_delete.png";
+	private static String EDIT_REMOVE = "icon/edit_remove.png";
 
 	class ApplyFileView extends FileView {
 		Icon newicon = new ImageIcon(getClass().getResource(BUTTON_OK));
@@ -248,56 +248,56 @@ public class FileChooserPanel extends JPanel {
 
 	class AudioPreviewListener implements PropertyChangeListener {
 
-//	    private final AudioPreviewPanel audioPreviewPanel;
-	    private final AudioPreviewPanel audioPreviewPanel;
+		//	    private final AudioPreviewPanel audioPreviewPanel;
+		private final AudioPreviewPanel audioPreviewPanel;
 
-	    /**
-         *
-         */
-        AudioPreviewListener(final AudioPreviewPanel previewPanel) {
-            audioPreviewPanel = previewPanel;
-        }
+		/**
+		 *
+		 */
+		AudioPreviewListener(final AudioPreviewPanel previewPanel) {
+			audioPreviewPanel = previewPanel;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void propertyChange(final PropertyChangeEvent evt) {
-            if(evt.getNewValue() instanceof File){
-                final String propertyName = evt.getPropertyName();
-                final File selection = (File) evt.getNewValue();
-                if(propertyName.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY) && selection.isFile()){
-                    audioPreviewPanel.onSelect(selection);
-//                    audioPreviewPanel.onLoad(selection);
-                }
-            }
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			if(evt.getNewValue() instanceof File){
+				final String propertyName = evt.getPropertyName();
+				final File selection = (File) evt.getNewValue();
+				if(propertyName.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY) && selection.isFile()){
+					audioPreviewPanel.onSelect(selection);
+					//                    audioPreviewPanel.onLoad(selection);
+				}
+			}
+		}
 
 	}
 
 	// a class to show the image preview with only one click (File
 	// Selection)
-//	class ImagePreviewListener implements PropertyChangeListener {
-//		ImagePreviewPanel m_imagePreviewPanel;
-//
-//		public ImagePreviewListener(final ImagePreviewPanel imagePreviewPanel) {
-//			m_imagePreviewPanel = imagePreviewPanel;
-//		}
-//
-//		@Override
-//		public void propertyChange(final PropertyChangeEvent e) {
-//
-//			if (e.getNewValue() instanceof File) {
-//				final String propertyName = e.getPropertyName();
-//				final File selection = (File) e.getNewValue();
-//				if (propertyName.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
-//
-//					m_imagePreviewPanel.setImage(selection.toString());
-//				}
-//			}
-//		}
-//
-//	}
+	//	class ImagePreviewListener implements PropertyChangeListener {
+	//		ImagePreviewPanel m_imagePreviewPanel;
+	//
+	//		public ImagePreviewListener(final ImagePreviewPanel imagePreviewPanel) {
+	//			m_imagePreviewPanel = imagePreviewPanel;
+	//		}
+	//
+	//		@Override
+	//		public void propertyChange(final PropertyChangeEvent e) {
+	//
+	//			if (e.getNewValue() instanceof File) {
+	//				final String propertyName = e.getPropertyName();
+	//				final File selection = (File) e.getNewValue();
+	//				if (propertyName.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
+	//
+	//					m_imagePreviewPanel.setImage(selection.toString());
+	//				}
+	//			}
+	//		}
+	//
+	//	}
 
 	class MacHackedFileChooserPanel extends JFileChooser {
 
@@ -383,7 +383,7 @@ public class FileChooserPanel extends JPanel {
 	// buttons to selected/remove files
 	private final JButton m_addButton;
 
-//	private EventService m_eventService;
+	//	private EventService m_eventService;
 
 	private final MacHackedFileChooserPanel m_fileChooser;
 
@@ -391,7 +391,7 @@ public class FileChooserPanel extends JPanel {
 
 	private List<ChangeListener> m_listeners;
 
-//	private final ImagePreviewListener m_previewListener;
+	//	private final ImagePreviewListener m_previewListener;
 
 	private final JButton m_remAllButton;
 
@@ -524,7 +524,7 @@ public class FileChooserPanel extends JPanel {
 		selectedPane.add(delButtonPan);
 
 		rightTab.add("Selected Files", selectedPane);
-		rightTab.add("Preview/Meta-Data", m_audioPreviewPanel);
+		rightTab.add("Preview", m_audioPreviewPanel);
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(left);
@@ -590,7 +590,7 @@ public class FileChooserPanel extends JPanel {
 
 		// Show preview and metadata from the selected file
 		final AudioPreviewListener audioPreviewListener = new AudioPreviewListener(
-		    m_audioPreviewPanel);
+				m_audioPreviewPanel);
 		m_fileChooser.addPropertyChangeListener(audioPreviewListener);
 
 		m_addButton.addActionListener(new ActionListener() {
@@ -800,9 +800,9 @@ public class FileChooserPanel extends JPanel {
 		m_selectedFileListBorder.setTitle("Selected files (" + m_selectedFileListModel.getSize() + ")");
 		repaint();
 
-//		if (m_eventService != null) {
-//			m_eventService.publish(new FileChooserSelectedFilesChgEvent(getSelectedFiles()));
-//		}
+		//		if (m_eventService != null) {
+		//			m_eventService.publish(new FileChooserSelectedFilesChgEvent(getSelectedFiles()));
+		//		}
 
 	}
 
@@ -899,9 +899,9 @@ public class FileChooserPanel extends JPanel {
 
 		}
 
-//		if (m_eventService != null) {
-//			m_eventService.publish(new FileChooserSelectedFilesChgEvent(getSelectedFiles()));
-//		}
+		//		if (m_eventService != null) {
+		//			m_eventService.publish(new FileChooserSelectedFilesChgEvent(getSelectedFiles()));
+		//		}
 	}
 
 	/**
@@ -915,12 +915,12 @@ public class FileChooserPanel extends JPanel {
 	private MacHackedFileChooserPanel getFileChooserWithLookAndFeel() {
 		MacHackedFileChooserPanel fileChooser = null;
 		if (System.getProperty("os.name").equals("Mac OS X")) {
-			LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+			final LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
 			try {
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 				fileChooser = new MacHackedFileChooserPanel();
 				UIManager.setLookAndFeel(lookAndFeel);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				// mac hack
 			}
 		}
@@ -929,6 +929,6 @@ public class FileChooserPanel extends JPanel {
 	}
 
 	void onClose(){
-	    m_audioPreviewPanel.onStop();
+		m_audioPreviewPanel.onStop();
 	}
 }

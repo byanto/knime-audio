@@ -71,109 +71,109 @@ import edu.cmu.sphinx.api.StreamSpeechRecognizer;
  */
 public class CMUSphinxSR implements Recognizer {
 
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(CMUSphinxSR.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(CMUSphinxSR.class);
 
-    private AbstractSpeechRecognizer m_recognizer;
-    private final Configuration m_config;
+	private AbstractSpeechRecognizer m_recognizer;
+	private final Configuration m_config;
 
-    /**
-     *
-     */
-    public CMUSphinxSR() {
+	/**
+	 *
+	 */
+	public CMUSphinxSR() {
 
-        m_config = new Configuration();
+		m_config = new Configuration();
 
-        final String packageName = CMUSphinxSR.class.getPackage().getName().replace(".", File.separator);
-        final String acousticModelPath = "resource:/" + packageName + File.separator + "models" + File.separator + "en-us-5.2";
-        final String languageModelPath = "resource:/" + packageName + File.separator + "models" + File.separator + "en-us.lm";
-        final String dictionaryPath = "resource:/" + packageName + File.separator + "models" + File.separator + "cmudict-en-us.dict";
+		final String packageName = CMUSphinxSR.class.getPackage().getName().replace(".", File.separator);
+		final String acousticModelPath = "resource:/" + packageName + File.separator + "models" + File.separator + "en-us-5.2";
+		final String languageModelPath = "resource:/" + packageName + File.separator + "models" + File.separator + "en-us.lm";
+		final String dictionaryPath = "resource:/" + packageName + File.separator + "models" + File.separator + "cmudict-en-us.dict";
 
-        m_config.setAcousticModelPath(acousticModelPath);
-        m_config.setLanguageModelPath(languageModelPath);
-        m_config.setDictionaryPath(dictionaryPath);
+		m_config.setAcousticModelPath(acousticModelPath);
+		m_config.setLanguageModelPath(languageModelPath);
+		m_config.setDictionaryPath(dictionaryPath);
 
-        try{
-            m_recognizer = new StreamSpeechRecognizer(m_config);
-        } catch(IOException ex){
-            LOGGER.error(ex.getMessage());
-        }
-    }
+		try{
+			m_recognizer = new StreamSpeechRecognizer(m_config);
+		} catch(final IOException ex){
+			LOGGER.error(ex.getMessage());
+		}
+	}
 
-    /**
-    *
-    * @param acousticModelPath
-    */
-   public void setAcoustisModelPath(final String acousticModelPath){
-       m_config.setAcousticModelPath(acousticModelPath);
-   }
+	/**
+	 *
+	 * @param acousticModelPath
+	 */
+	public void setAcoustisModelPath(final String acousticModelPath){
+		m_config.setAcousticModelPath(acousticModelPath);
+	}
 
-   /**
-    * @return the acoustic model path
-    */
-   public String getAcousticModelPath(){
-       return m_config.getAcousticModelPath();
-   }
+	/**
+	 * @return the acoustic model path
+	 */
+	public String getAcousticModelPath(){
+		return m_config.getAcousticModelPath();
+	}
 
-   /**
-    *
-    * @param languageModelPath
-    */
-   public void setLanguageModelPath(final String languageModelPath){
-       m_config.setLanguageModelPath(languageModelPath);
-   }
+	/**
+	 *
+	 * @param languageModelPath
+	 */
+	public void setLanguageModelPath(final String languageModelPath){
+		m_config.setLanguageModelPath(languageModelPath);
+	}
 
-   /**
-    * @return the language model path
-    */
-   public String getLanguageModelPath(){
-       return m_config.getLanguageModelPath();
-   }
+	/**
+	 * @return the language model path
+	 */
+	public String getLanguageModelPath(){
+		return m_config.getLanguageModelPath();
+	}
 
-   /**
-   *
-   * @param dictionaryPath
-   */
-  public void setDictionaryPath(final String dictionaryPath){
-      m_config.setDictionaryPath(dictionaryPath);
-  }
+	/**
+	 *
+	 * @param dictionaryPath
+	 */
+	public void setDictionaryPath(final String dictionaryPath){
+		m_config.setDictionaryPath(dictionaryPath);
+	}
 
-  /**
-   * @return the dictionary path
-   */
-  public String getDictionaryPath(){
-      return m_config.getDictionaryPath();
-  }
+	/**
+	 * @return the dictionary path
+	 */
+	public String getDictionaryPath(){
+		return m_config.getDictionaryPath();
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getName() {
-      return "CMU Sphinx-4 Recognizer";
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		return "CMU Sphinx-4 Speech Recognizer";
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RecognitionResult recognize(final Audio audio) {
-        InputStream inStream = null;
-        try{
-            inStream = new BufferedInputStream(
-                new FileInputStream(audio.getFile()));
-        } catch(FileNotFoundException ex){
-            LOGGER.error(ex);
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RecognitionResult recognize(final Audio audio) {
+		InputStream inStream = null;
+		try{
+			inStream = new BufferedInputStream(
+					new FileInputStream(audio.getFile()));
+		} catch(final FileNotFoundException ex){
+			LOGGER.error(ex);
+		}
 
-        final StreamSpeechRecognizer recognizer = (StreamSpeechRecognizer) m_recognizer;
-        recognizer.startRecognition(inStream);
-        SpeechResult result;
-        final StringBuilder builder = new StringBuilder();
-        while((result = recognizer.getResult()) != null){
-            builder.append(result.getHypothesis());
-        }
-        recognizer.stopRecognition();
-        return new RecognitionResult(getName(), builder.toString());
-    }
+		final StreamSpeechRecognizer recognizer = (StreamSpeechRecognizer) m_recognizer;
+		recognizer.startRecognition(inStream);
+		SpeechResult result;
+		final StringBuilder builder = new StringBuilder();
+		while((result = recognizer.getResult()) != null){
+			builder.append(result.getHypothesis());
+		}
+		recognizer.stopRecognition();
+		return new RecognitionResult(getName(), builder.toString());
+	}
 
 }
