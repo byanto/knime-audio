@@ -48,11 +48,19 @@
  */
 package org.knime.audio.node.dataextractor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.audio.data.Audio;
+import org.knime.audio.data.recognizer.RecognitionResult;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
+import org.knime.core.data.collection.CollectionCellFactory;
+import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.StringCell;
 
 /**
@@ -61,159 +69,181 @@ import org.knime.core.data.def.StringCell;
  */
 public enum DataExtractor {
 
-    /** Returns the name of an audio */
-    NAME("Name", new Extractor() {
-        @Override
-        public DataCell getValue(final Audio audio) {
-            final String name = FilenameUtils.getBaseName(
-                audio.getFile().getName());
-            if(StringUtils.isBlank(name)){
-                return DataType.getMissingCell();
-            }
-            return new StringCell(name);
-        }
+	/** Returns the name of an audio */
+	NAME("Name", new Extractor() {
+		@Override
+		public DataCell getValue(final Audio audio) {
+			final String name = FilenameUtils.getBaseName(
+					audio.getFile().getName());
+			if(StringUtils.isBlank(name)){
+				return DataType.getMissingCell();
+			}
+			return new StringCell(name);
+		}
 
-        @Override
-        public DataType getType() {
-            return StringCell.TYPE;
-        }
-    }),
+		@Override
+		public DataType getType() {
+			return StringCell.TYPE;
+		}
+	}),
 
-    /** Returns the path of an audio */
-    PATH("Path", new Extractor() {
-        @Override
-        public DataCell getValue(final Audio audio) {
-            final String path = audio.getFile().getAbsolutePath();
-            if(StringUtils.isBlank(path)){
-                return DataType.getMissingCell();
-            }
-            return new StringCell(path);
-        }
+	/** Returns the path of an audio */
+	PATH("Path", new Extractor() {
+		@Override
+		public DataCell getValue(final Audio audio) {
+			final String path = audio.getFile().getAbsolutePath();
+			if(StringUtils.isBlank(path)){
+				return DataType.getMissingCell();
+			}
+			return new StringCell(path);
+		}
 
-        @Override
-        public DataType getType() {
-            return StringCell.TYPE;
-        }
-    });
+		@Override
+		public DataType getType() {
+			return StringCell.TYPE;
+		}
+	}),
 
-//    /** Returns the type of an audio */
-//    TYPE("Type", new Extractor() {
-//        @Override
-//        public DataCell getValue(final Audio audio) {
-//            final String type = audio.getAudioFileFormat().getType().toString();
-//            if(StringUtils.isBlank(type)){
-//                return DataType.getMissingCell();
-//            }
-//            return new StringCell(type);
-//        }
-//
-//        @Override
-//        public DataType getType() {
-//            return StringCell.TYPE;
-//        }
-//    });
+	TRANSCRIPTION("Transcription", new Extractor(){
 
-//    /** Returns the recognition results of an audio */
-//    RECOGNITION("Recognition", new Extractor() {
-//        @Override
-//        public DataCell[] getValue(final Audio audio) {
-//            final Map<String, RecognitionResult> map = audio.getRecognitionResults();
-//            final DataCell[] cells = new DataCell[map.size() * 3];
-//            int idx = 0;
-//            for(Entry<String, RecognitionResult> entry : map.entrySet()){
-//                cells[idx++] = new StringCell(entry.getKey());
-//                cells[idx++] = new StringCell(entry.getValue().getTranscript());
-//                cells[idx++] = new DoubleCell(entry.getValue().getConfidence());
-//            }
-//            return cells;
-//        }
-//    });
+		@Override
+		public DataCell getValue(final Audio audio) {
+			if(!audio.hasRecognitionResult()){
+				return DataType.getMissingCell();
+			}
+			final Map<String, RecognitionResult> recResults = audio.getRecognitionResults();
+			final List<DataCell> cells = new ArrayList<DataCell>(recResults.size());
+			for(final Entry<String, RecognitionResult> entry : recResults.entrySet()){
+				cells.add(new StringCell(entry.getValue().getTranscript()));
+			}
+			return CollectionCellFactory.createListCell(cells);
+		}
 
-    private interface Extractor {
+		@Override
+		public DataType getType() {
+			return ListCell.getCollectionType(StringCell.TYPE);
+		}
 
-        /**
-         * @param audio the {@link Audio} to extract the data from
-         * @return the extracted data as array of {@link DataCell}
-         */
-        public DataCell getValue(final Audio audio);
+	});
 
-        /**
-         * @return the {@link DataType}
-         */
-        public DataType getType();
+	//    /** Returns the type of an audio */
+	//    TYPE("Type", new Extractor() {
+	//        @Override
+	//        public DataCell getValue(final Audio audio) {
+	//            final String type = audio.getAudioFileFormat().getType().toString();
+	//            if(StringUtils.isBlank(type)){
+	//                return DataType.getMissingCell();
+	//            }
+	//            return new StringCell(type);
+	//        }
+	//
+	//        @Override
+	//        public DataType getType() {
+	//            return StringCell.TYPE;
+	//        }
+	//    });
 
-    }
+	//    /** Returns the recognition results of an audio */
+	//    RECOGNITION("Recognition", new Extractor() {
+	//        @Override
+	//        public DataCell[] getValue(final Audio audio) {
+	//            final Map<String, RecognitionResult> map = audio.getRecognitionResults();
+	//            final DataCell[] cells = new DataCell[map.size() * 3];
+	//            int idx = 0;
+	//            for(Entry<String, RecognitionResult> entry : map.entrySet()){
+	//                cells[idx++] = new StringCell(entry.getKey());
+	//                cells[idx++] = new StringCell(entry.getValue().getTranscript());
+	//                cells[idx++] = new DoubleCell(entry.getValue().getConfidence());
+	//            }
+	//            return cells;
+	//        }
+	//    });
 
-    private final String m_name;
-    private final Extractor m_extractor;
+	private interface Extractor {
 
-    private DataExtractor(final String name, final Extractor extractor){
-        if(StringUtils.isBlank(name)){
-            throw new IllegalArgumentException("Name cannot be empty.");
-        }
-        if(extractor == null){
-            throw new IllegalArgumentException("Extractor cannot be null.");
-        }
-        m_name = name;
-        m_extractor = extractor;
-    }
+		/**
+		 * @param audio the {@link Audio} to extract the data from
+		 * @return the extracted data as array of {@link DataCell}
+		 */
+		public DataCell getValue(final Audio audio);
 
-    /**
-     * @return the name of the extractor
-     */
-    public String getName() {
-        return m_name;
-    }
+		/**
+		 * @return the {@link DataType}
+		 */
+		public DataType getType();
 
-    /**
-     * @param audio the {@link Audio} to extract the data from
-     * @return the extracted data as array of {@link DataCell}
-     */
-    public DataCell getValue(final Audio audio){
-        return m_extractor.getValue(audio);
-    }
+	}
 
-    /**
-     * @return the {@link DataType}
-     */
-    public DataType getType(){
-        return m_extractor.getType();
-    }
+	private final String m_name;
+	private final Extractor m_extractor;
 
-    /**
-     * @return the name of all extractors
-     */
-    public static String[] getExtractorNames() {
-        final DataExtractor[] values = values();
-        final String[] names = new String[values.length];
-        for (int i = 0, length = values.length; i < length; i++) {
-            names[i] = values[i].getName();
-        }
-        return names;
-    }
+	private DataExtractor(final String name, final Extractor extractor){
+		if(StringUtils.isBlank(name)){
+			throw new IllegalArgumentException("Name cannot be empty.");
+		}
+		if(extractor == null){
+			throw new IllegalArgumentException("Extractor cannot be null.");
+		}
+		m_name = name;
+		m_extractor = extractor;
+	}
 
-    /**
-     * @param names the name of the extractors to get
-     * @return the extractors with the given name in the same order
-     */
-    public static DataExtractor[] getExctractor(final String...names) {
-        if (names == null) {
-            return null;
-        }
-        final DataExtractor[] extractors = new DataExtractor[names.length];
-        for (int i = 0, length = names.length; i < length; i++) {
-            final String name = names[i];
-            for (final DataExtractor extractor : values()) {
-                if (extractor.getName().equals(name)) {
-                    extractors[i] = extractor;
-                    break;
-                }
-            }
-            if (extractors[i] == null) {
-                throw new IllegalArgumentException(
-                        "Invalid extractor name: " + name);
-            }
-        }
-        return extractors;
-    }
+	/**
+	 * @return the name of the extractor
+	 */
+	public String getName() {
+		return m_name;
+	}
+
+	/**
+	 * @param audio the {@link Audio} to extract the data from
+	 * @return the extracted data as array of {@link DataCell}
+	 */
+	public DataCell getValue(final Audio audio){
+		return m_extractor.getValue(audio);
+	}
+
+	/**
+	 * @return the {@link DataType}
+	 */
+	public DataType getType(){
+		return m_extractor.getType();
+	}
+
+	/**
+	 * @return the name of all extractors
+	 */
+	public static String[] getExtractorNames() {
+		final DataExtractor[] values = values();
+		final String[] names = new String[values.length];
+		for (int i = 0, length = values.length; i < length; i++) {
+			names[i] = values[i].getName();
+		}
+		return names;
+	}
+
+	/**
+	 * @param names the name of the extractors to get
+	 * @return the extractors with the given name in the same order
+	 */
+	public static DataExtractor[] getExctractor(final String...names) {
+		if (names == null) {
+			return null;
+		}
+		final DataExtractor[] extractors = new DataExtractor[names.length];
+		for (int i = 0, length = names.length; i < length; i++) {
+			final String name = names[i];
+			for (final DataExtractor extractor : values()) {
+				if (extractor.getName().equals(name)) {
+					extractors[i] = extractor;
+					break;
+				}
+			}
+			if (extractors[i] == null) {
+				throw new IllegalArgumentException(
+						"Invalid extractor name: " + name);
+			}
+		}
+		return extractors;
+	}
 }

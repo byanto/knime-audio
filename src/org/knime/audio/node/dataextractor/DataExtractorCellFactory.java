@@ -63,49 +63,49 @@ import org.knime.core.data.container.AbstractCellFactory;
  */
 public class DataExtractorCellFactory extends AbstractCellFactory{
 
-    private final int m_colIdx;
-    private DataExtractor[] m_extractors;
+	private final int m_colIdx;
+	private final DataExtractor[] m_extractors;
 
-    DataExtractorCellFactory(final int colIdx, final DataColumnSpec[] specs,
-            final DataExtractor[] extractors){
-        super(specs);
-        if (colIdx < 0) {
-            throw new IllegalArgumentException("Invalid document column");
-        }
+	DataExtractorCellFactory(final int colIdx, final DataColumnSpec[] specs,
+			final DataExtractor[] extractors){
+		super(specs);
+		if (colIdx < 0) {
+			throw new IllegalArgumentException("Invalid document column");
+		}
 
-        if (extractors == null || extractors.length < 1) {
-            throw new IllegalArgumentException("Extractors must not be empty");
-        }
+		if ((extractors == null) || (extractors.length < 1)) {
+			throw new IllegalArgumentException("Extractors must not be empty");
+		}
 
-        if (specs.length != extractors.length) {
-            throw new IllegalArgumentException(
-                    "Column specs and extractors must have the same size");
-        }
+		if (specs.length != extractors.length) {
+			throw new IllegalArgumentException(
+					"Column specs and extractors must have the same size");
+		}
 
-        m_colIdx = colIdx;
-        m_extractors = extractors;
-    }
+		m_colIdx = colIdx;
+		m_extractors = extractors;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DataCell[] getCells(final DataRow row) {
-        final DataCell cell = row.getCell(m_colIdx);
-        if(!cell.getType().isCompatible(AudioValue.class)){
-            throw new IllegalStateException("Invalid column type");
-        }
-        if(cell.isMissing()){
-            return new DataCell[]{DataType.getMissingCell()};
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataCell[] getCells(final DataRow row) {
+		final DataCell cell = row.getCell(m_colIdx);
+		if(!cell.getType().isCompatible(AudioValue.class)){
+			throw new IllegalStateException("Invalid column type");
+		}
+		if(cell.isMissing()){
+			return new DataCell[]{DataType.getMissingCell()};
+		}
 
-        final Audio audio = ((AudioCell) cell).getAudio();
-        final DataCell[] cells = new DataCell[m_extractors.length];
-        for(int i = 0; i < cells.length; i++){
-            cells[i] = m_extractors[i].getValue(audio);
-        }
+		final Audio audio = ((AudioCell) cell).getAudio();
+		final DataCell[] cells = new DataCell[getColumnSpecs().length];
+		for(int i = 0; i < cells.length; i++){
+			cells[i] = m_extractors[i].getValue(audio);
+		}
 
-        return cells;
-    }
+		return cells;
+	}
 
 }
